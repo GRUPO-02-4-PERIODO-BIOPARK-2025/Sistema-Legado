@@ -1,11 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
-from apps.usuarios import views as usuarios_views
+from django.shortcuts import redirect
+
+def root_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard:index')
+    return redirect('usuarios:login')
 
 urlpatterns = [
     path('usuarios/', include('apps.usuarios.urls')),
     path('admin/', admin.site.urls),
-    path('', usuarios_views.cadastro_view, name='root'),
+    path('', root_redirect, name='root'),
     path('dashboard/', include('apps.dashboard.urls')),
     path('clientes/', include('apps.clientes.urls')),
     path('funcionarios/', include('apps.funcionarios.urls')),

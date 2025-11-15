@@ -6,10 +6,28 @@ from django.core.exceptions import ValidationError
 class LoginForm(forms.Form):
     username = forms.CharField(
         max_length=150,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu usuário'})
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Digite seu nome de usuário',
+            'autocomplete': 'username'
+        }),
+        label='Nome de Usuário',
+        error_messages={
+            'required': 'O nome de usuário é obrigatório.'
+        }
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'})
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Digite sua senha',
+            'autocomplete': 'current-password'
+        }),
+        label='Senha',
+        error_messages={
+            'required': 'A senha é obrigatória.'
+        }
     )
 
 class CadastroForm(UserCreationForm):
@@ -60,14 +78,12 @@ class CadastroForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         full_name = self.cleaned_data.get('full_name', '')
         
-        # Dividir o nome completo em primeiro e último nome
         name_parts = full_name.split(' ', 1)
         user.first_name = name_parts[0]
         user.last_name = name_parts[1] if len(name_parts) > 1 else ''
         
         if commit:
             user.save()
-            # Criar perfil associado
             from .models import Perfil
             Perfil.objects.create(usuario=user)
         return user

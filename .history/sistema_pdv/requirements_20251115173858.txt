@@ -1,3 +1,0 @@
-# Add project dependencies here
-Django>=4.0
-PyMySQL>=1.1

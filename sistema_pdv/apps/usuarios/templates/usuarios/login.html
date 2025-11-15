@@ -1,7 +1,86 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1>Login</h1>
-<form method="post">{% csrf_token %}
-  <!-- login form -->
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Sistema PDV</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'login.css' %}">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+
+      <h2>Bem-vindo de volta!</h2>
+      <p class="subtitle">Faça login para acessar o sistema</p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <p class="msg {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="input-group">
+          <label>Nome de Usuário</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <span class="error">{{ form.username.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="input-group password-group">
+          <label>Senha</label>
+          <div class="password-wrapper">
+            {{ form.password }}
+            <span class="toggle-password" data-target="id_password">👁</span>
+          </div>
+          {% if form.password.errors %}
+            <span class="error">{{ form.password.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="forgot-password">
+          <a href="{% url 'usuarios:recuperar_senha' %}">Esqueceu sua senha?</a>
+        </div>
+
+        <button type="submit" class="btn-login">Entrar</button>
+
+      </form>
+
+      <p class="register-text">
+        Não tem uma conta?
+        <a href="{% url 'usuarios:cadastro' %}">Cadastre-se</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    // Função para mostrar/ocultar senha
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButton = document.querySelector('.toggle-password');
+      
+      if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+          const targetId = this.getAttribute('data-target');
+          const passwordInput = document.getElementById(targetId);
+          
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.textContent = '🙈';
+          } else {
+            passwordInput.type = 'password';
+            this.textContent = '👁';
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
