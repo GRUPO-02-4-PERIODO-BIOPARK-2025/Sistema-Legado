@@ -1,15 +1,12 @@
 import os
 from pathlib import Path
 
-# Permitir que Django use PyMySQL como MySQLdb
 try:
-    import pymysql  # type: ignore
+    import pymysql
     pymysql.install_as_MySQLdb()
 except Exception:
-    # PyMySQL pode não estar instalado ainda durante algumas execuções
     pass
 
-# Minimal settings for local development
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret')
@@ -23,7 +20,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # local apps (use package path so imports work when running from project root)
     'apps.clientes',
     'apps.funcionarios',
     'apps.fornecedores',
@@ -71,8 +67,8 @@ DATABASES = {
         'NAME': 'sistema_pdv',
         'USER': 'user',
         'PASSWORD': 'userpass',
-        'HOST': '127.0.0.1',  # acessando MySQL do Docker via host
-        'PORT': '3307',       # porta mapeada no docker-compose
+        'HOST': '127.0.0.1',
+        'PORT': '3307',
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
@@ -89,5 +85,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Opcional: evita warnings de AutoField
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'usuarios:login'
+LOGIN_REDIRECT_URL = 'dashboard:index'
+LOGOUT_REDIRECT_URL = 'usuarios:login'
+
+SESSION_COOKIE_AGE = 3600
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
