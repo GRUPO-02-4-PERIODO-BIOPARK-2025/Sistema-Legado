@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Conta</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static '/register.css' %}">
+</head>
+<body>
+
+  <div class="register-container">
+    <div class="register-card">
+
+      <h2>Criar Conta</h2>
+
+      {% if messages %}
+        {% for message in messages %}
+          <p class="msg {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="input-group">
+          <label>Nome Completo</label>
+          {{ form.full_name }}
+        </div>
+
+        <div class="input-group">
+          <label>Nome de Usuário</label>
+          {{ form.username }}
+        </div>
+
+        <div class="input-group">
+          <label>E-mail</label>
+          {{ form.email }}
+        </div>
+
+        <div class="input-group password-group">
+          <label>Senha</label>
+          <div class="password-wrapper">
+            {{ form.password1 }}
+            <span class="toggle-password" data-target="id_password1">👁</span>
+          </div>
+        </div>
+
+        <div class="input-group password-group">
+          <label>Confirmar Senha</label>
+          <div class="password-wrapper">
+            {{ form.password2 }}
+            <span class="toggle-password" data-target="id_password2">👁</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-register">Cadastrar</button>
+
+      </form>
+
+      <p class="login-text">
+        Já tem conta?
+        <a href="">Faça login</a>
+      </p>
+
+      <p class="login-text">
+        Esqueceu a senha?
+        <a href="">Recuperar senha</a>
+      </p>
+
+    </div>
+  </div>
+
+</body>
+</html>
