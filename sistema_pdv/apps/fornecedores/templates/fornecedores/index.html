@@ -1,4 +1,135 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<h1>Fornecedores</h1>
+<link rel="stylesheet" href="{% static 'fornecedores/fornecedores.css' %}">
+
+<section class="fornecedores-page">
+	<div class="header">
+		<h1>Fornecedores</h1>
+	</div>
+
+	<div class="form-panel">
+		<form method="post" action="{% if edit_id %}{% url 'fornecedores:edit' edit_id %}{% else %}{% url 'fornecedores:create' %}{% endif %}">
+			{% csrf_token %}
+			<div class="row">
+				<div class="col">
+					{{ form.nome.label_tag }}
+					{{ form.nome }}
+				</div>
+				<div class="col">
+					{{ form.nome_fantasia.label_tag }}
+					{{ form.nome_fantasia }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label class="required-label" for="{{ form.cnpj.id_for_label }}">{{ form.cnpj.label }}</label>
+					{{ form.cnpj }}
+					<div class="field-error" id="cnpj-error" aria-live="polite"></div>
+				</div>
+				<div class="col">
+					{{ form.inscricao_estadual.label_tag }}
+					{{ form.inscricao_estadual }}
+				</div>
+				<div class="col">
+					{{ form.categoria.label_tag }}
+					{{ form.categoria }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-full">
+					{{ form.endereco.label_tag }}
+					{{ form.endereco }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.telefone.label_tag }}
+					{{ form.telefone }}
+				</div>
+				<div class="col">
+					{{ form.celular.label_tag }}
+					{{ form.celular }}
+				</div>
+				<div class="col">
+					{{ form.email.label_tag }}
+					{{ form.email }}
+					<div class="field-error" id="email-error" aria-live="polite"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label class="required-label" for="{{ form.cidade.id_for_label }}">{{ form.cidade.label }}</label>
+					{{ form.cidade }}
+				</div>
+				<div class="col">
+					<label class="required-label" for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+					{{ form.estado }}
+				</div>
+				<div class="col">
+					<label class="required-label" for="{{ form.cep.id_for_label }}">{{ form.cep.label }}</label>
+					{{ form.cep }}
+					<div class="field-error" id="cep-error" aria-live="polite"></div>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+				{% if edit_id %}
+				<a href="{% url 'fornecedores:index' %}" class="btn btn-secondary">Cancelar</a>
+				{% endif %}
+			</div>
+			</form>
+
+			{% if edit_id %}
+			<form method="post" action="{% url 'fornecedores:delete' edit_id %}" onsubmit="return confirm('Confirma exclusão deste fornecedor?');" style="display:inline-block;margin-top:8px;">
+				{% csrf_token %}
+				<button type="submit" class="btn btn-delete">Excluir</button>
+			</form>
+			{% endif %}
+	</div>
+
+	<div class="list-panel">
+		<h2>Lista de Fornecedores</h2>
+		<table class="fornecedores-table">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>CNPJ/CPF</th>
+					<th>Cidade</th>
+					<th>Telefone</th>
+					<th>E-mail</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for f in fornecedores %}
+				<tr>
+					<td>{{ f.nome }}</td>
+					<td>{{ f.cnpj }}</td>
+					<td>{{ f.cidade }}</td>
+					<td>{{ f.telefone }}</td>
+					<td>{{ f.email }}</td>
+					<td class="actions-col">
+						<a class="action edit" href="{% url 'fornecedores:edit' f.pk %}">Editar</a>
+						<form method="post" action="{% url 'fornecedores:delete' f.pk %}" class="inline-form" onsubmit="return confirm('Confirma exclusão deste fornecedor?');">
+							{% csrf_token %}
+							<button type="submit" class="action delete">Excluir</button>
+						</form>
+					</td>
+				</tr>
+				{% empty %}
+				<tr><td colspan="5">Nenhum fornecedor cadastrado.</td></tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<script src="{% static 'fornecedores/fornecedores.js' %}"></script>
+</section>
+
 {% endblock %}
