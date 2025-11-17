@@ -7,6 +7,28 @@
 <section class="estoque-page">
 	<div class="page-header">
 		<h2>Produtos em Estoque</h2>
+		<a href="{% url 'estoque:relatorio' %}" class="btn-relatorio">📊 Ver Relatório</a>
+	</div>
+
+	<!-- Barra de Busca e Filtros -->
+	<div class="filters-bar">
+		<form method="get" action="{% url 'estoque:index' %}" class="search-form">
+			<input 
+				type="text" 
+				name="busca" 
+				placeholder="Buscar produto por nome..." 
+				value="{{ busca }}"
+				class="search-input"
+			>
+			<button type="submit" class="btn-search">🔍 Buscar</button>
+		</form>
+
+		<div class="filter-buttons">
+			<a href="{% url 'estoque:index' %}" class="filter-btn {% if not filtro_status %}active{% endif %}">Todos</a>
+			<a href="?status=normal{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'normal' %}active{% endif %}">Normal</a>
+			<a href="?status=estoque_baixo{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'estoque_baixo' %}active{% endif %}">Estoque Baixo</a>
+			<a href="?status=sem_estoque{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'sem_estoque' %}active{% endif %}">Sem Estoque</a>
+		</div>
 	</div>
 
 	<div class="stats-row">
