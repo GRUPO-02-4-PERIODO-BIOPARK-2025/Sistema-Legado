@@ -1,4 +1,93 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h1>Estoque</h1>
+<link rel="stylesheet" href="{% static 'estoque/estoque.css' %}">
+
+<section class="estoque-page">
+	<div class="page-header">
+		<h2>Produtos em Estoque</h2>
+	</div>
+
+	<div class="stats-row">
+		<div class="stat-card total">
+			<h5>Total de Produtos</h5>
+			<div class="value">{{ total_produtos }}</div>
+			<small>produtos cadastrados</small>
+		</div>
+
+		<div class="stat-card baixo">
+			<h5>Estoque Baixo</h5>
+			<div class="value">{{ estoque_baixo }}</div>
+			<small>produtos abaixo do mínimo</small>
+		</div>
+
+		<div class="stat-card zerado">
+			<h5>Sem Estoque</h5>
+			<div class="value">{{ sem_estoque }}</div>
+			<small>produtos zerados</small>
+		</div>
+	</div>
+
+	<div class="table-panel">
+		<h3>Produtos em Estoque</h3>
+		<table class="produtos-table">
+			<thead>
+				<tr>
+					<th>Produto</th>
+					<th>Categoria</th>
+					<th>Quantidade</th>
+					<th>Estoque Mín.</th>
+					<th>Status</th>
+					<th>Preço</th>
+					<th>Última Atualização</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in produtos %}
+					{% with p=item.obj %}
+					<tr>
+						<td>{{ p.nome }}</td>
+						<td>{% if p.categoria %}{{ p.categoria }}{% else %}-{% endif %}</td>
+						<td>{{ p.estoque }}</td>
+						<td>{{ item.estoque_min }}</td>
+						<td>
+							{% if item.status == 'sem_estoque' %}
+								<span class="status-badge zerado">Sem Estoque</span>
+							{% elif item.status == 'estoque_baixo' %}
+								<span class="status-badge baixo">Estoque baixo</span>
+							{% else %}
+								<span class="status-badge normal">Normal</span>
+							{% endif %}
+						</td>
+						<td>R$ {{ p.preco|floatformat:2 }}</td>
+						<td>{{ item.ultima_atualizacao|date:"Y-m-d" }}</td>
+						<td>
+							<div class="action-buttons">
+								<form method="post" action="{% url 'estoque:ajustar' p.id %}">
+									{% csrf_token %}
+									<input type="hidden" name="action" value="inc">
+									<button type="submit" class="btn-action add" title="Adicionar">+</button>
+								</form>
+
+								<form method="post" action="{% url 'estoque:ajustar' p.id %}">
+									{% csrf_token %}
+									<input type="hidden" name="action" value="dec">
+									<button type="submit" class="btn-action remove" title="Remover">−</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+					{% endwith %}
+				{% empty %}
+					<tr>
+						<td colspan="8" class="empty-state">Nenhum produto cadastrado.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+
 {% endblock %}

@@ -5,4 +5,5 @@ app_name = 'estoque'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('ajustar/<int:produto_id>/', views.ajustar, name='ajustar'),
 ]
