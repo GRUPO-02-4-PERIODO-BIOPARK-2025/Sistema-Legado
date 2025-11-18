@@ -1,0 +1,489 @@
+/* PDV Styles */
+.pdv-container {
+    padding: 20px;
+    background: #f5f5f7;
+    min-height: 100vh;
+}
+
+.pdv-content {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Seções */
+.pedido-section,
+.resumo-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 20px 0;
+}
+
+/* Busca de Produtos */
+.produto-search {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #7b2ff7;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+}
+
+.search-results.show {
+    display: block;
+}
+
+/* Lista de Itens */
+.itens-lista {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.item-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.item-card:hover {
+    border-color: #7b2ff7;
+    box-shadow: 0 2px 8px rgba(123, 47, 247, 0.1);
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-nome {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 4px 0;
+}
+
+.item-preco {
+    font-size: 13px;
+    color: #86868b;
+    margin: 0;
+}
+
+.item-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-qty {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    background: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-qty:hover {
+    background: #f5f5f7;
+    border-color: #7b2ff7;
+}
+
+.item-qty {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.btn-remove {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: #ffebee;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-remove:hover {
+    background: #ffcdd2;
+}
+
+.item-total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #7b2ff7;
+    min-width: 100px;
+    text-align: right;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+    color: #86868b;
+}
+
+/* Resumo */
+.resumo-card {
+    background: #f9f9fb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #1d1d1f;
+}
+
+.resumo-linha:last-child {
+    margin-bottom: 0;
+}
+
+.desconto-linha {
+    padding: 12px 0;
+    border-top: 1px solid #e5e5e7;
+    border-bottom: 1px solid #e5e5e7;
+}
+
+.desconto-input {
+    width: 120px;
+    padding: 6px 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    text-align: right;
+    font-size: 14px;
+}
+
+.total-linha {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.valor-total {
+    color: #7b2ff7;
+    font-size: 24px;
+}
+
+/* Pagamento */
+.pagamento-card {
+    background: #f9f9fb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.pagamento-title,
+.barcode-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 16px 0;
+}
+
+.pagamento-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: #f5f5f7;
+}
+
+.tab-btn.active {
+    background: linear-gradient(90deg, #7b2ff7, #9b41ff);
+    color: white;
+    border-color: transparent;
+}
+
+.pagamento-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6e6e73;
+}
+
+.valor-input {
+    padding: 10px 14px;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.valor-input.readonly {
+    background: #f5f5f7;
+    color: #34c759;
+}
+
+/* Código de Barras */
+.barcode-card {
+    background: #f9f9fb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.barcode {
+    margin-top: 16px;
+}
+
+.barcode-lines {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 12px;
+}
+
+.barcode-lines span {
+    display: inline-block;
+    width: 3px;
+    height: 60px;
+    background: #1d1d1f;
+}
+
+.barcode-lines span:nth-child(2n) {
+    width: 2px;
+}
+
+.barcode-lines span:nth-child(3n) {
+    width: 4px;
+}
+
+.barcode-number {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #1d1d1f;
+    margin: 0;
+}
+
+/* Botões de Ação */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.btn-adicionar {
+    background: linear-gradient(90deg, #7b2ff7, #9b41ff);
+    color: white;
+}
+
+.btn-adicionar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(123, 47, 247, 0.3);
+}
+
+.btn-cancelar {
+    background: white;
+    color: #ff3b30;
+    border: 2px solid #ff3b30;
+}
+
+.btn-cancelar:hover {
+    background: #fff5f5;
+}
+
+.btn-finalizar {
+    background: #34c759;
+    color: white;
+}
+
+.btn-finalizar:hover {
+    background: #2db84d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e5e7;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #86868b;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+}
+
+.produtos-lista {
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.produto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.produto-item:hover {
+    border-color: #7b2ff7;
+    box-shadow: 0 2px 8px rgba(123, 47, 247, 0.1);
+}
+
+.produto-info {
+    font-size: 13px;
+    color: #86868b;
+    margin: 4px 0 0 0;
+}
+
+.btn-selecionar {
+    padding: 8px 16px;
+    background: linear-gradient(90deg, #7b2ff7, #9b41ff);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-selecionar:hover {
+    transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .pdv-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .resumo-section {
+        order: -1;
+    }
+}
