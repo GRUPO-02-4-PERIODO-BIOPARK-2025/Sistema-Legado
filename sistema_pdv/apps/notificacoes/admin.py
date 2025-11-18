@@ -17,9 +17,9 @@ class NotificationAdmin(admin.ModelAdmin):
 
 @admin.register(StockThreshold)
 class StockThresholdAdmin(admin.ModelAdmin):
-    list_display = ['produto', 'limite_minimo', 'ativo', 'atualizado_em']
+    list_display = ['produto', 'quantidade_minima', 'ativo', 'atualizado_em']
     list_filter = ['ativo', 'atualizado_em']
-    search_fields = ['produto__nome', 'produto__codigo']
+    search_fields = ['produto__nome']
     readonly_fields = ['criado_em', 'atualizado_em']
     
     def get_queryset(self, request):
