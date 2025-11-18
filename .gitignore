@@ -24,3 +24,6 @@ db.sqlite3
 # Environment
 .env
 venv/
+
+.github/
+.vscode/
