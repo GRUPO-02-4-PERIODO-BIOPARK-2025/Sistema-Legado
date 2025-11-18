@@ -1,4 +1,147 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h1>Vendas / PDV</h1>
+<link rel="stylesheet" href="{% static 'vendas/pdv.css' %}">
+
+<section class="pdv-container">
+	<div class="pdv-content">
+		<!-- Coluna Esquerda: Itens do Pedido -->
+		<div class="pedido-section">
+			<h2 class="section-title">Itens do Pedido</h2>
+			
+			<!-- Busca de Produtos -->
+			<div class="produto-search">
+				<input type="text" id="busca-produto" placeholder="Buscar produto por nome ou código..." class="search-input">
+				<div id="resultados-busca" class="search-results"></div>
+			</div>
+
+			<!-- Lista de Itens -->
+			<div class="itens-lista" id="itens-lista">
+				{% for item in itens %}
+				<div class="item-card" data-item-id="{{ item.id }}">
+					<div class="item-info">
+						<h4 class="item-nome">{{ item.produto.nome }}</h4>
+						<p class="item-preco">R$ {{ item.preco_unitario|floatformat:2 }}</p>
+					</div>
+					
+					<div class="item-controls">
+						<button class="btn-qty btn-decrement" data-item-id="{{ item.id }}">−</button>
+						<span class="item-qty">{{ item.quantidade }}</span>
+						<button class="btn-qty btn-increment" data-item-id="{{ item.id }}">+</button>
+						<button class="btn-remove" data-item-id="{{ item.id }}">🗑️</button>
+					</div>
+					
+					<div class="item-total">
+						R$ <span class="subtotal-valor">{{ item.subtotal|floatformat:2 }}</span>
+					</div>
+				</div>
+				{% empty %}
+				<div class="empty-cart">
+					<p>Nenhum item adicionado</p>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- Coluna Direita: Resumo e Pagamento -->
+		<div class="resumo-section">
+			<h2 class="section-title">Resumo do Pedido</h2>
+			
+			<div class="resumo-card">
+				<div class="resumo-linha">
+					<span>Subtotal:</span>
+					<span class="valor">R$ <span id="subtotal">{{ venda.subtotal|floatformat:2 }}</span></span>
+				</div>
+				
+				<div class="resumo-linha desconto-linha">
+					<label for="desconto-input">Desconto:</label>
+					<input type="number" id="desconto-input" value="{{ venda.desconto|floatformat:2 }}" step="0.01" min="0" class="desconto-input">
+				</div>
+				
+				<div class="resumo-linha total-linha">
+					<span>Total:</span>
+					<span class="valor-total">R$ <span id="total">{{ venda.total|floatformat:2 }}</span></span>
+				</div>
+			</div>
+
+			<!-- Formas de Pagamento -->
+			<div class="pagamento-card">
+				<h3 class="pagamento-title">Formas de Pagamento</h3>
+				
+				<div class="pagamento-tabs">
+					<button class="tab-btn active" data-tipo="dinheiro">Dinheiro</button>
+					<button class="tab-btn" data-tipo="cartao">Cartão</button>
+					<button class="tab-btn" data-tipo="pix">PIX</button>
+					<button class="tab-btn" data-tipo="outros">Outros</button>
+				</div>
+
+				<div class="pagamento-inputs">
+					<div class="form-group">
+						<label>Valor Recebido</label>
+						<input type="number" id="valor-recebido" step="0.01" min="0" placeholder="R$ 0,00" class="valor-input">
+					</div>
+					
+					<div class="form-group">
+						<label>Troco</label>
+						<input type="text" id="troco" readonly placeholder="R$ 0,00" class="valor-input readonly">
+					</div>
+				</div>
+
+				<!-- Valores por forma de pagamento (hidden inputs) -->
+				<input type="hidden" id="pagamento-dinheiro" value="0">
+				<input type="hidden" id="pagamento-cartao" value="0">
+				<input type="hidden" id="pagamento-pix" value="0">
+				<input type="hidden" id="pagamento-outros" value="0">
+			</div>
+
+			<!-- Código de Barras -->
+			<div class="barcode-card">
+				<h3 class="barcode-title">Código de Barras</h3>
+				<div class="barcode">
+					<div class="barcode-lines">
+						<span></span><span></span><span></span><span></span><span></span>
+						<span></span><span></span><span></span><span></span><span></span>
+						<span></span><span></span><span></span><span></span><span></span>
+					</div>
+					<p class="barcode-number">{{ venda.codigo_barras }}</p>
+				</div>
+			</div>
+
+			<!-- Botões de Ação -->
+			<div class="action-buttons">
+				<button id="btn-adicionar" class="btn btn-adicionar">Adicionar Item</button>
+				<button id="btn-cancelar" class="btn btn-cancelar">Cancelar Venda</button>
+				<button id="btn-finalizar" class="btn btn-finalizar">Finalizar Venda</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Modal de Adicionar Produto -->
+<div id="modal-produto" class="modal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h3>Selecionar Produto</h3>
+			<button class="modal-close">&times;</button>
+		</div>
+		<div class="modal-body">
+			<input type="text" id="modal-busca" placeholder="Buscar produto..." class="search-input">
+			<div class="produtos-lista" id="produtos-lista">
+				{% for produto in produtos %}
+				<div class="produto-item" data-produto-id="{{ produto.id }}" data-produto-nome="{{ produto.nome }}" data-produto-preco="{{ produto.preco }}">
+					<div>
+						<strong>{{ produto.nome }}</strong>
+						<p class="produto-info">R$ {{ produto.preco|floatformat:2 }} - Estoque: {{ produto.estoque }}</p>
+					</div>
+					<button class="btn-selecionar">Adicionar</button>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'vendas/pdv.js' %}"></script>
+
 {% endblock %}

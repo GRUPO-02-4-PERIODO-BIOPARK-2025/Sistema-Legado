@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'estoque/estoque.css' %}">
+
+<section class="estoque-page">
+	<div class="page-header">
+		<h2>📊 Relatório de Movimentações</h2>
+		<a href="{% url 'estoque:index' %}" class="btn-voltar">← Voltar</a>
+	</div>
+
+	<!-- Filtros -->
+	<div class="filters-bar">
+		<form method="get" action="{% url 'estoque:relatorio' %}" class="relatorio-form">
+			<div class="form-group">
+				<input 
+					type="text" 
+					name="busca" 
+					placeholder="Buscar produto..." 
+					value="{{ busca }}"
+					class="search-input"
+				>
+			</div>
+			
+			<div class="form-group">
+				<label>Data Início:</label>
+				<input 
+					type="date" 
+					name="data_inicio" 
+					value="{{ data_inicio }}"
+					class="date-input"
+				>
+			</div>
+
+			<div class="form-group">
+				<label>Data Fim:</label>
+				<input 
+					type="date" 
+					name="data_fim" 
+					value="{{ data_fim }}"
+					class="date-input"
+				>
+			</div>
+
+			<button type="submit" class="btn-search">🔍 Filtrar</button>
+			<a href="{% url 'estoque:relatorio' %}" class="btn-limpar">Limpar</a>
+		</form>
+
+		<a href="{% url 'estoque:exportar_relatorio' %}?busca={{ busca }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}" class="btn-exportar">
+			📥 Exportar CSV
+		</a>
+	</div>
+
+	<!-- Tabela de Movimentações -->
+	<div class="table-panel">
+		<h3>Histórico de Movimentações (últimos 100 registros)</h3>
+		<table class="produtos-table">
+			<thead>
+				<tr>
+					<th>Data/Hora</th>
+					<th>Produto</th>
+					<th>Quantidade</th>
+					<th>Tipo</th>
+					<th>Estoque Atual</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for mov in movimentos %}
+					<tr>
+						<td>{{ mov.data|date:"d/m/Y H:i:s" }}</td>
+						<td>{{ mov.produto.nome }}</td>
+						<td class="{% if mov.quantidade > 0 %}positive{% else %}negative{% endif %}">
+							{{ mov.quantidade|stringformat:"+d" }}
+						</td>
+						<td>
+							{% if mov.quantidade > 0 %}
+								<span class="status-badge normal">Entrada</span>
+							{% else %}
+								<span class="status-badge zerado">Saída</span>
+							{% endif %}
+						</td>
+						<td>{{ mov.produto.estoque }}</td>
+					</tr>
+				{% empty %}
+					<tr>
+						<td colspan="5" class="empty-state">Nenhuma movimentação encontrada.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+
+{% endblock %}

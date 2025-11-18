@@ -1,4 +1,115 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h1>Estoque</h1>
+<link rel="stylesheet" href="{% static 'estoque/estoque.css' %}">
+
+<section class="estoque-page">
+	<div class="page-header">
+		<h2>Produtos em Estoque</h2>
+		<a href="{% url 'estoque:relatorio' %}" class="btn-relatorio">📊 Ver Relatório</a>
+	</div>
+
+	<!-- Barra de Busca e Filtros -->
+	<div class="filters-bar">
+		<form method="get" action="{% url 'estoque:index' %}" class="search-form">
+			<input 
+				type="text" 
+				name="busca" 
+				placeholder="Buscar produto por nome..." 
+				value="{{ busca }}"
+				class="search-input"
+			>
+			<button type="submit" class="btn-search">🔍 Buscar</button>
+		</form>
+
+		<div class="filter-buttons">
+			<a href="{% url 'estoque:index' %}" class="filter-btn {% if not filtro_status %}active{% endif %}">Todos</a>
+			<a href="?status=normal{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'normal' %}active{% endif %}">Normal</a>
+			<a href="?status=estoque_baixo{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'estoque_baixo' %}active{% endif %}">Estoque Baixo</a>
+			<a href="?status=sem_estoque{% if busca %}&busca={{ busca }}{% endif %}" class="filter-btn {% if filtro_status == 'sem_estoque' %}active{% endif %}">Sem Estoque</a>
+		</div>
+	</div>
+
+	<div class="stats-row">
+		<div class="stat-card total">
+			<h5>Total de Produtos</h5>
+			<div class="value">{{ total_produtos }}</div>
+			<small>produtos cadastrados</small>
+		</div>
+
+		<div class="stat-card baixo">
+			<h5>Estoque Baixo</h5>
+			<div class="value">{{ estoque_baixo }}</div>
+			<small>produtos abaixo do mínimo</small>
+		</div>
+
+		<div class="stat-card zerado">
+			<h5>Sem Estoque</h5>
+			<div class="value">{{ sem_estoque }}</div>
+			<small>produtos zerados</small>
+		</div>
+	</div>
+
+	<div class="table-panel">
+		<h3>Produtos em Estoque</h3>
+		<table class="produtos-table">
+			<thead>
+				<tr>
+					<th>Produto</th>
+					<th>Categoria</th>
+					<th>Quantidade</th>
+					<th>Estoque Mín.</th>
+					<th>Status</th>
+					<th>Preço</th>
+					<th>Última Atualização</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in produtos %}
+					{% with p=item.obj %}
+					<tr>
+						<td>{{ p.nome }}</td>
+						<td>{% if p.categoria %}{{ p.categoria }}{% else %}-{% endif %}</td>
+						<td>{{ p.estoque }}</td>
+						<td>{{ item.estoque_min }}</td>
+						<td>
+							{% if item.status == 'sem_estoque' %}
+								<span class="status-badge zerado">Sem Estoque</span>
+							{% elif item.status == 'estoque_baixo' %}
+								<span class="status-badge baixo">Estoque baixo</span>
+							{% else %}
+								<span class="status-badge normal">Normal</span>
+							{% endif %}
+						</td>
+						<td>R$ {{ p.preco|floatformat:2 }}</td>
+						<td>{{ item.ultima_atualizacao|date:"Y-m-d" }}</td>
+						<td>
+							<div class="action-buttons">
+								<form method="post" action="{% url 'estoque:ajustar' p.id %}">
+									{% csrf_token %}
+									<input type="hidden" name="action" value="inc">
+									<button type="submit" class="btn-action add" title="Adicionar">+</button>
+								</form>
+
+								<form method="post" action="{% url 'estoque:ajustar' p.id %}">
+									{% csrf_token %}
+									<input type="hidden" name="action" value="dec">
+									<button type="submit" class="btn-action remove" title="Remover">−</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+					{% endwith %}
+				{% empty %}
+					<tr>
+						<td colspan="8" class="empty-state">Nenhum produto cadastrado.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+
 {% endblock %}
