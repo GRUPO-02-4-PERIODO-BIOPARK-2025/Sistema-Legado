@@ -1,4 +1,5 @@
-"""Services for funcionarios app"""
+from .models import Funcionario
 
-def listar_funcionarios():
-    return []
+
+def buscar_funcionarios():
+    return Funcionario.objects.all()
