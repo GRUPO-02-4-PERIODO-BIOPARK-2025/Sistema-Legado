@@ -1,4 +1,119 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<h1>Funcionários</h1>
+<link rel="stylesheet" href="{% static 'funcionarios/funcionarios.css' %}">
+
+<section class="funcionarios-page">
+	<div class="header">
+		<h1>Funcionários</h1>
+	</div>
+
+	<div class="form-panel">
+		<form method="post" action="{% if edit_id %}{% url 'funcionarios:edit' edit_id %}{% else %}{% url 'funcionarios:create' %}{% endif %}">
+			{% csrf_token %}
+			<div class="row">
+				<div class="col">
+					<label class="required-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+					{{ form.nome }}
+				</div>
+				<div class="col">
+					{{ form.email.label_tag }}
+					{{ form.email }}
+					<div class="field-error" id="email-error" aria-live="polite"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.telefone.label_tag }}
+					{{ form.telefone }}
+				</div>
+				<div class="col">
+					<label class="required-label" for="{{ form.cpf.id_for_label }}">{{ form.cpf.label }}</label>
+					{{ form.cpf }}
+					<div class="field-error" id="cpf-error" aria-live="polite"></div>
+				</div>
+				<div class="col">
+					{{ form.rg.label_tag }}
+					{{ form.rg }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.cargo.label_tag }}
+					{{ form.cargo }}
+				</div>
+				<div class="col">
+					{{ form.departamento.label_tag }}
+					{{ form.departamento }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.salario.label_tag }}
+					{{ form.salario }}
+				</div>
+				<div class="col">
+					{{ form.data_admissao.label_tag }}
+					{{ form.data_admissao }}
+				</div>
+			</div>
+
+			<div class="actions">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+				{% if edit_id %}
+				<a href="{% url 'funcionarios:index' %}" class="btn btn-secondary">Cancelar</a>
+				{% endif %}
+			</div>
+		</form>
+
+		{% if edit_id %}
+		<form method="post" action="{% url 'funcionarios:delete' edit_id %}" onsubmit="return confirm('Confirma exclusão deste funcionário?');" style="display:inline-block;margin-top:8px;">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-delete">Excluir</button>
+		</form>
+		{% endif %}
+	</div>
+
+	<div class="list-panel">
+		<h2>Lista de Funcionários</h2>
+		<table class="funcionarios-table">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>CPF</th>
+					<th>Cargo</th>
+					<th>Departamento</th>
+					<th>Telefone</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for f in funcionarios %}
+				<tr>
+					<td>{{ f.nome }}</td>
+					<td>{{ f.cpf }}</td>
+					<td>{{ f.cargo }}</td>
+					<td>{{ f.departamento }}</td>
+					<td>{{ f.telefone }}</td>
+					<td class="actions-col">
+						<a class="action edit" href="{% url 'funcionarios:edit' f.pk %}">Editar</a>
+						<form method="post" action="{% url 'funcionarios:delete' f.pk %}" class="inline-form" onsubmit="return confirm('Confirma exclusão deste funcionário?');">
+							{% csrf_token %}
+							<button type="submit" class="action delete">Excluir</button>
+						</form>
+					</td>
+				</tr>
+				{% empty %}
+				<tr><td colspan="6">Nenhum funcionário cadastrado.</td></tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<script src="{% static 'funcionarios/funcionarios.js' %}"></script>
+</section>
+
 {% endblock %}
