@@ -87,3 +87,19 @@ class CadastroForm(UserCreationForm):
             from .models import Perfil
             Perfil.objects.create(usuario=user)
         return user
+
+
+class RecuperarSenhaForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu nome de usuário',
+            'autocomplete': 'username'
+        }),
+        label='Nome de Usuário',
+        error_messages={
+            'required': 'O nome de usuário é obrigatório.'
+        }
+    )
