@@ -35,6 +35,8 @@ body{font-family:Segoe UI, Roboto, Arial, sans-serif;margin:0;color:var(--text);
 .menu-item:hover{background:rgba(255,255,255,0.04)}
 .menu-item.active{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));box-shadow:inset 3px 0 0 var(--accent)}
 
+button:hover{background:rgba(255,255,255,0.12)!important}
+
 .main-content{margin-left:var(--sidebar-width);padding:28px}
 
 /* Responsive: collapse sidebar on narrow screens */
