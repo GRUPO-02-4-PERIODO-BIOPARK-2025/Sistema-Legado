@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatórios de Vendas{% endblock %}
+
+{% block content %}
+<style>
+    .relatorios-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .filtros-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1 );
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .filtros-card h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .filtro-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .filtro-grupo {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filtro-grupo label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 6px;
+    }
+    
+    .filtro-grupo input,
+    .filtro-grupo select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+    
+    .filtro-grupo input:focus,
+    .filtro-grupo select:focus {
+        outline: none;
+        border-color: #6f2bd6;
+        box-shadow: 0 0 0 2px rgba(111, 43, 214, 0.1);
+    }
+    
+    .botoes-acao {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+        background: #6f2bd6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5a1fb8;
+    }
+    
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+    
+    .btn-secondary:hover {
+        background: #e0e0e0;
+    }
+    
+    .resultado-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .resultado-card h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .resumo-vendas {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .resumo-item {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 4px;
+        border-left: 4px solid #6f2bd6;
+    }
+    
+    .resumo-item label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+    }
+    
+    .resumo-item .valor {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .tabela-vendas {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .tabela-vendas thead {
+        background: #f5f5f5;
+    }
+    
+    .tabela-vendas th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .tabela-vendas td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+    
+    .tabela-vendas tr:hover {
+        background: #f9f9f9;
+    }
+    
+    .tabela-vendas .vazio {
+        text-align: center;
+        color: #999;
+        padding: 30px 12px;
+    }
+    
+    @media (max-width: 768px) {
+        .filtro-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .resumo-vendas {
+            grid-template-columns: 1fr;
+        }
+        
+        .botoes-acao {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="relatorios-container">
+    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 30px; color: #333;">Relatórios de Vendas</h1>
+
+    <div class="filtros-card">
+        <h2>Filtros de Relatório</h2>
+        <form method="GET" action="{% url 'relatorios:gerar_relatorio' %}" id="filtrosForm">
+            <div class="filtro-row">
+                <div class="filtro-grupo">
+                    <label for="data_inicio">Data Início</label>
+                    <input type="date" id="data_inicio" name="data_inicio" value="{{ filtros.data_inicio }}">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="data_fim">Data Fim</label>
+                    <input type="date" id="data_fim" name="data_fim" value="{{ filtros.data_fim }}">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="cliente">Cliente</label>
+                    <select id="cliente" name="cliente">
+                        <option value="">Todos os clientes</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.pk }}" {% if cliente.pk|stringformat:"s" == filtros.cliente %}selected{% endif %}>{{ cliente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="funcionario">Funcionário</label>
+                    <select id="funcionario" name="funcionario">
+                        <option value="">Todos os funcionários</option>
+                        {% for funcionario in funcionarios %}
+                        <option value="{{ funcionario.pk }}" {% if funcionario.pk|stringformat:"s" == filtros.funcionario %}selected{% endif %}>{{ funcionario.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="forma_pagamento">Forma de Pagamento</label>
+                    <select id="forma_pagamento" name="forma_pagamento">
+                        <option value="">Todas as formas</option>
+                        {% for key, value in formas_pagamento %}
+                        <option value="{{ key }}" {% if key == filtros.forma_pagamento %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="botoes-acao">
+                <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+                <button type="reset" class="btn btn-secondary">Limpar Filtros</button>
+            </div>
+        </form>
+    </div>
+
+    {% if total_vendas is not None %}
+        <div class="resultado-card">
+            <h2>Resultado do Relatório</h2>
+            
+            <div class="resumo-vendas">
+                <div class="resumo-item">
+                    <label>Total de Vendas</label>
+                    <div class="valor">{{ total_vendas }}</div>
+                </div>
+                <div class="resumo-item">
+                    <label>Faturamento Total</label>
+                    <div class="valor">R$ {{ total_faturamento|floatformat:2 }}</div>
+                </div>
+                <div class="resumo-item">
+                    <label>Ticket Médio</label>
+                    <div class="valor">{% if total_vendas > 0 %}R$ {% widthratio total_faturamento total_vendas 1 %}{% else %}R$ 0,00{% endif %}</div>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="tabela-vendas">
+                    <thead>
+                        <tr>
+                            <th>Cód. Venda</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Funcionário</th>
+                            <th>Total</th>
+                            <th>Formas de Pagamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>{{ venda.codigo_barras }}</strong></td>
+                            <td>{{ venda.cliente.nome|default:"N/A" }}</td>
+                            <td>{{ venda.data|date:"d/m/Y H:i" }}</td>
+                            <td>{{ venda.usuario.username }}</td>
+                            <td><strong>R$ {{ venda.total|floatformat:2 }}</strong></td>
+                            <td>
+                                {% for pagamento in venda.pagamentos.all %}
+                                    <div style="font-size: 12px; margin: 2px 0;">{{ pagamento.get_tipo_display }}: R$ {{ pagamento.valor|floatformat:2 }}</div>
+                                {% empty %}
+                                    <span style="color: #999;">N/A</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="vazio">Nenhuma venda encontrada com os filtros aplicados.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
