@@ -9,7 +9,14 @@ import string
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard:index')
+        # Redireciona funcionário para PDV, administrador para dashboard
+        try:
+            if request.user.perfil.permissao == 'funcionario':
+                return redirect('vendas:index')
+            else:
+                return redirect('dashboard:index')
+        except:
+            return redirect('dashboard:index')
     
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -24,7 +31,15 @@ def login_view(request):
                     login(request, user)
                     nome = user.first_name if user.first_name else user.username
                     messages.success(request, f'Bem-vindo, {nome}!')
-                    return redirect('dashboard:index')
+                    
+                    # Redireciona funcionário para PDV, administrador para dashboard
+                    try:
+                        if user.perfil.permissao == 'funcionario':
+                            return redirect('vendas:index')
+                        else:
+                            return redirect('dashboard:index')
+                    except:
+                        return redirect('dashboard:index')
                 else:
                     messages.error(request, 'Sua conta está desativada. Entre em contato com o administrador.')
             else:
@@ -38,7 +53,14 @@ def login_view(request):
 
 def cadastro_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard:index')
+        # Redireciona funcionário para PDV, administrador para dashboard
+        try:
+            if request.user.perfil.permissao == 'funcionario':
+                return redirect('vendas:index')
+            else:
+                return redirect('dashboard:index')
+        except:
+            return redirect('dashboard:index')
     
     if request.method == 'POST':
         form = CadastroForm(request.POST)
@@ -57,9 +79,12 @@ def cadastro_view(request):
 
 @login_required(login_url='usuarios:login')
 def logout_view(request):
-    logout(request)
-    messages.success(request, 'Você saiu do sistema com sucesso.')
-    return redirect('usuarios:login')
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, 'Você saiu do sistema com sucesso.')
+        return redirect('usuarios:login')
+    # Se for GET, renderiza página de confirmação
+    return render(request, 'usuarios/logout.html')
 
 def recuperar_senha_view(request):
     if request.method == 'POST':
