@@ -9,6 +9,7 @@ class Venda(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     desconto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, null=True, blank=True)
     usuario = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
     finalizada = models.BooleanField(default=False)
 
