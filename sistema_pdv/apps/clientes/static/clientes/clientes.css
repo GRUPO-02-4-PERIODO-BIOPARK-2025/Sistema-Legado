@@ -1,0 +1,163 @@
+/* Styles specific to clientes page — use global CSS variables from sidebar.css */
+
+.clientes-page {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.header h1 {
+    margin: 0 0 18px 0;
+    color: var(--sidebar-bg);
+}
+
+.form-panel {
+    background: #fff;
+    padding: 18px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 18px rgba(16,16,16,0.06);
+}
+
+.form-panel label {
+    display: block;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.required-label {
+    font-weight: 700;
+}
+
+.field-error {
+    color: #b03b3b;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+.field-error.visible {
+    display: block;
+}
+
+.input-invalid {
+    border-color: #e05b5b !important;
+    box-shadow: 0 0 0 3px rgba(224,91,91,0.06);
+}
+
+/* Inputs padrão */
+.form-panel input[type="text"],
+.form-panel input[type="tel"],
+.form-panel input[type="email"],
+.form-panel input[type="number"],
+.form-panel textarea,
+.form-panel select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e6e4ef;
+    border-radius: 6px;
+    background: #fff;
+    color: #222;
+    font-size: 14px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.col {
+    flex: 1;
+}
+
+.col-full {
+    flex: 1;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #f3f2f7;
+    color: #444;
+    border: 1px solid #efeaee;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background: transparent;
+    border: 1px solid #e8bfc3;
+    color: #b03b3b;
+    padding: 10px 18px;
+    border-radius: 8px;
+}
+
+.list-panel {
+    background: #fff;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+.clientes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.clientes-table th,
+.clientes-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f0edf5;
+    text-align: left;
+}
+
+.actions-col {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action {
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.action.edit {
+    background: #6f2bd6;
+    color: #fff;
+}
+
+.action.delete {
+    background: transparent;
+    border: 1px solid #e8bfc3;
+    color: #b03b3b;
+    padding: 6px 10px;
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .row {
+        flex-direction: column;
+    }
+}
