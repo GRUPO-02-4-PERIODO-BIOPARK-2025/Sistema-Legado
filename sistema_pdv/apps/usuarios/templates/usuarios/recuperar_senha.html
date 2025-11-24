@@ -1,7 +1,129 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1>Recuperar senha</h1>
-<form method="post">{% csrf_token %}
-  <!-- recuperar senha form -->
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Senha - Sistema PDV</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'login.css' %}">
+  <style>
+    .senha-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .senha-box h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.1rem;
+    }
+    .senha-valor {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      font-family: 'Courier New', monospace;
+      background: rgba(255,255,255,0.2);
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      user-select: all;
+      cursor: pointer;
+    }
+    .senha-box p {
+      margin: 10px 0 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .btn-copiar {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+    .btn-copiar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+
+      <h2>Recuperar Senha</h2>
+      <p class="subtitle">Digite seu nome de usuário para redefinir sua senha</p>
+
+      {% if nova_senha %}
+        <div class="senha-box">
+          <h3>Senha redefinida com sucesso!</h3>
+          <p>Usuário: <strong>{{ username }}</strong></p>
+          <div class="senha-valor" id="senhaNova" onclick="copiarSenha()">{{ nova_senha }}</div>
+          <button class="btn-copiar" onclick="copiarSenha()">Copiar Senha</button>
+        </div>
+      {% else %}
+        {% if messages %}
+          {% for message in messages %}
+            <p class="msg {{ message.tags }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <div class="input-group">
+            <label>Nome de Usuário</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <span class="error">{{ form.username.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn-login">Redefinir Senha</button>
+        </form>
+      {% endif %}
+
+      <p class="register-text">
+        Lembrou sua senha?
+        <a href="{% url 'usuarios:login' %}">Fazer login</a>
+      </p>
+
+      <p class="register-text">
+        Não tem uma conta?
+        <a href="{% url 'usuarios:cadastro' %}">Cadastre-se</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    function copiarSenha() {
+      const senha = document.getElementById('senhaNova').textContent;
+      navigator.clipboard.writeText(senha).then(function() {
+        const btn = document.querySelector('.btn-copiar');
+        const textoOriginal = btn.textContent;
+        btn.textContent = '✓ Copiado!';
+        btn.style.background = '#48bb78';
+        btn.style.color = 'white';
+        setTimeout(function() {
+          btn.textContent = textoOriginal;
+          btn.style.background = 'white';
+          btn.style.color = '#667eea';
+        }, 2000);
+      }).catch(function(err) {
+        alert('Erro ao copiar. Selecione e copie manualmente: Ctrl+C');
+      });
+    }
+  </script>
+
+</body>
+</html>

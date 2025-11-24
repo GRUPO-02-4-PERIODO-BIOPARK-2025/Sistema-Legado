@@ -31,6 +31,11 @@ class LoginForm(forms.Form):
     )
 
 class CadastroForm(UserCreationForm):
+    TIPO_USUARIO_CHOICES = [
+        ('administrador', 'Administrador'),
+        ('funcionario', 'Funcionário'),
+    ]
+    
     full_name = forms.CharField(
         max_length=255,
         required=True,
@@ -48,6 +53,13 @@ class CadastroForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu nome de usuário'}),
         label='Nome de Usuário'
     )
+    tipo_usuario = forms.ChoiceField(
+        choices=TIPO_USUARIO_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Tipo de Usuário',
+        initial='funcionario'
+    )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}),
         label='Senha'
@@ -59,7 +71,7 @@ class CadastroForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['full_name', 'username', 'email', 'password1', 'password2']
+        fields = ['full_name', 'username', 'email', 'tipo_usuario', 'password1', 'password2']
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -77,6 +89,7 @@ class CadastroForm(UserCreationForm):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         full_name = self.cleaned_data.get('full_name', '')
+        tipo_usuario = self.cleaned_data.get('tipo_usuario', 'funcionario')
         
         name_parts = full_name.split(' ', 1)
         user.first_name = name_parts[0]
@@ -85,5 +98,21 @@ class CadastroForm(UserCreationForm):
         if commit:
             user.save()
             from .models import Perfil
-            Perfil.objects.create(usuario=user)
+            Perfil.objects.create(usuario=user, permissao=tipo_usuario)
         return user
+
+
+class RecuperarSenhaForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu nome de usuário',
+            'autocomplete': 'username'
+        }),
+        label='Nome de Usuário',
+        error_messages={
+            'required': 'O nome de usuário é obrigatório.'
+        }
+    )

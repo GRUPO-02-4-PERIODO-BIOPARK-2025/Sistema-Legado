@@ -21,7 +21,6 @@ def index(request):
     if busca:
         produtos = produtos.filter(nome__icontains=busca)
 
-    default_min = 10
     total_produtos = Produto.objects.count()
     estoque_baixo = 0
     sem_estoque = 0
@@ -29,7 +28,7 @@ def index(request):
 
     for p in produtos:
         estoque_atual = getattr(p, 'estoque', 0)
-        estoque_min = getattr(p, 'estoque_min', default_min)
+        estoque_min = getattr(p, 'estoque_min', 10)
         status = 'normal'
         if estoque_atual == 0:
             status = 'sem_estoque'
@@ -54,7 +53,7 @@ def index(request):
     # Contar totais (sempre sobre todos os produtos, não filtrados)
     for p in Produto.objects.all():
         estoque_atual = getattr(p, 'estoque', 0)
-        estoque_min = getattr(p, 'estoque_min', default_min)
+        estoque_min = getattr(p, 'estoque_min', 10)
         if estoque_atual == 0:
             sem_estoque += 1
         elif estoque_atual < estoque_min:

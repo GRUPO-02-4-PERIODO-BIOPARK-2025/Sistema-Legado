@@ -277,6 +277,35 @@ python manage.py migrate --run-syncdb
 - **Docker:** 20.10+
 - **Docker Compose:** 1.29+
 
+## 📧 Configuração de E-mail (Recuperação de Senha)
+
+Para habilitar a funcionalidade de recuperação de senha por e-mail:
+
+### 1. Configurar Gmail
+
+1. Acesse sua conta do Gmail
+2. Ative a verificação em duas etapas
+3. Gere uma senha de app em: https://myaccount.google.com/apppasswords
+4. Copie a senha de app gerada (16 caracteres)
+
+### 2. Configurar Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto (copie do `.env.example`):
+
+```env
+EMAIL_HOST_USER=seu-email@gmail.com
+EMAIL_HOST_PASSWORD=sua-senha-app-do-gmail
+```
+
+### 3. Configurar no Windows (PowerShell)
+
+```powershell
+$Env:EMAIL_HOST_USER = "seu-email@gmail.com"
+$Env:EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
+```
+
+**Nota:** Se não configurar o e-mail, a nova senha será exibida na tela após a recuperação.
+
 ## 👥 Equipe
 
 **Grupo 02 - 4º Período Biopark 2025**

@@ -1,4 +1,140 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<h1>Clientes</h1>
+
+<link rel="stylesheet" href="{% static 'clientes/clientes.css' %}">
+<script src="{% static 'clientes/clientes.js' %}"></script>
+
+
+<section class="clientes-page">
+	<div class="header">
+		<h1>Clientes</h1>
+	</div>
+
+	<div class="form-panel">
+		<form method="post" action="{% if edit_id %}{% url 'clientes:edit' edit_id %}{% else %}{% url 'clientes:create' %}{% endif %}">
+			{% csrf_token %}
+
+			<div class="row">
+				<div class="col">
+					{{ form.nome.label_tag }}
+					{{ form.nome }}
+				</div>
+
+				<div class="col">
+					{{ form.email.label_tag }}
+					{{ form.email }}
+					<div class="field-error" id="email-error"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.telefone.label_tag }}
+					{{ form.telefone }}
+				</div>
+
+				<div class="col">
+					{{ form.tipo_documento.label_tag }}
+					{{ form.tipo_documento }}
+				</div>
+
+				<div class="col">
+					<label class="required-label" for="{{ form.numero_documento.id_for_label }}">
+						{{ form.numero_documento.label }}
+					</label>
+					{{ form.numero_documento }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-full">
+					{{ form.endereco.label_tag }}
+					{{ form.endereco }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.cidade.label_tag }}
+					{{ form.cidade }}
+				</div>
+
+				<div class="col">
+					{{ form.estado.label_tag }}
+					{{ form.estado }}
+				</div>
+
+				<div class="col">
+					{{ form.cep.label_tag }}
+					{{ form.cep }}
+					<div class="field-error" id="cep-error"></div>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+
+				{% if edit_id %}
+					<a href="{% url 'clientes:index' %}" class="btn btn-secondary">Cancelar</a>
+				{% endif %}
+			</div>
+		</form>
+
+		{% if edit_id %}
+		<form method="post" action="{% url 'clientes:delete' edit_id %}" 
+			  onsubmit="return confirm('Confirma exclusão deste cliente?');"
+			  style="display:inline-block;margin-top:8px;">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-delete">Excluir</button>
+		</form>
+		{% endif %}
+	</div>
+
+	<div class="list-panel">
+		<h2>Lista de Clientes</h2>
+
+		<table class="clientes-table">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>Documento</th>
+					<th>Cidade</th>
+					<th>Telefone</th>
+					<th>E-mail</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for c in clientes %}
+				<tr>
+					<td>{{ c.nome }}</td>
+					<td>{{ c.numero_documento }}</td>
+					<td>{{ c.cidade }}</td>
+					<td>{{ c.telefone }}</td>
+					<td>{{ c.email }}</td>
+					<td class="actions-col">
+						<a class="action edit" href="{% url 'clientes:edit' c.pk %}">Editar</a>
+
+						<form method="post" action="{% url 'clientes:delete' c.pk %}" 
+							  class="inline-form"
+							  onsubmit="return confirm('Confirma exclusão deste cliente?');">
+							{% csrf_token %}
+							<button type="submit" class="action delete">Excluir</button>
+						</form>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6">Nenhum cliente cadastrado.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<script src="{% static 'clientes/clientes.js' %}"></script>
+</section>
+
 {% endblock %}
