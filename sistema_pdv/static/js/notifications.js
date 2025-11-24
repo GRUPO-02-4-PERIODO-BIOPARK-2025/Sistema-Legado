@@ -30,7 +30,16 @@
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.status);
+            }
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Resposta não é JSON (possível redirecionamento)');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 renderNotifications(data.notificacoes);
@@ -39,6 +48,7 @@
         })
         .catch(error => {
             console.error('Erro ao carregar notificações:', error);
+            // Don't show error to user if it's a redirect (user not logged in)
         });
     }
 
@@ -90,7 +100,16 @@
                 'X-CSRFToken': getCookie('csrftoken')
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.status);
+            }
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Resposta não é JSON');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 loadNotifications();
@@ -111,7 +130,16 @@
                 'X-CSRFToken': getCookie('csrftoken')
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.status);
+            }
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Resposta não é JSON');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 loadNotifications();
@@ -165,7 +193,7 @@
         return cookieValue;
     }
 
-    // Auto-refresh notifications every 30 seconds
+    // Auto-refresh notifications every 1 second
     setInterval(function() {
         if (!notificationDropdown.classList.contains('show')) {
             fetch('/api/notificacoes/', {
@@ -174,7 +202,16 @@
                     'Content-Type': 'application/json',
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na requisição: ' + response.status);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Resposta não é JSON (possível redirecionamento)');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     updateBadge(data.nao_lidas);
@@ -182,9 +219,10 @@
             })
             .catch(error => {
                 console.error('Erro ao atualizar badge:', error);
+                // Don't show error to user if it's a redirect (user not logged in)
             });
         }
-    }, 30000);
+    }, 1000);
 
     // Initial load
     loadNotifications();

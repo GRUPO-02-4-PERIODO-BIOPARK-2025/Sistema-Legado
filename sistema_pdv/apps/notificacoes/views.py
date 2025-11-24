@@ -51,9 +51,13 @@ def listar_notificacoes(request):
             'lida_em': n.lida_em.isoformat() if n.lida_em else None
         } for n in notificacoes]
         
+        # Count unread notifications
+        nao_lidas = Notification.objects.filter(lida=False).count()
+        
         return JsonResponse({
             'success': True,
             'count': len(data),
+            'nao_lidas': nao_lidas,
             'notificacoes': data
         })
     
