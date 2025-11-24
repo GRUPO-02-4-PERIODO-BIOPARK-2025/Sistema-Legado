@@ -44,7 +44,7 @@ def listar_notificacoes(request):
                 'nome': n.produto.nome,
                 'estoque_atual': n.produto.estoque
             },
-            'quantidade_atual': n.quantidade_atual,
+            'quantidade_atual': n.produto.estoque,  # Always return current stock, not stale notification value
             'quantidade_minima': n.quantidade_minima,
             'lida': n.lida,
             'criado_em': n.criado_em.isoformat(),

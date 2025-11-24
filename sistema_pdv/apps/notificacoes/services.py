@@ -34,17 +34,23 @@ def verificar_estoque_baixo(produto):
         # Determinar tipo e prioridade baseado no estoque
         estoque_atual = produto.estoque
         
+        # IMPORTANT: Check in order from most critical to least
+        # Calculate critical threshold (30% of minimum)
+        threshold_critical = int(quantidade_minima * 0.3)
+        
         if estoque_atual == 0:
             tipo = 'out_of_stock'
             prioridade = 'critical'
             titulo = f'SEM ESTOQUE: {produto.nome}'
             mensagem = f'O produto "{produto.nome}" está sem estoque!'
-        elif estoque_atual <= quantidade_minima * 0.3:  # Menos de 30% do mínimo
+        elif estoque_atual <= threshold_critical:
+            # Less than or equal to 30% of minimum is CRITICAL
             tipo = 'critical'
             prioridade = 'critical'
             titulo = f'CRÍTICO: {produto.nome}'
-            mensagem = f'O produto "{produto.nome}" está com apenas {estoque_atual} unidades (mínimo: {quantidade_minima})'
+            mensagem = f'O produto "{produto.nome}" está com apenas {estoque_atual} unidades (crítico: <={threshold_critical}, mínimo: {quantidade_minima})'
         elif estoque_atual <= quantidade_minima:
+            # Between critical threshold and minimum is LOW STOCK
             tipo = 'low_stock'
             prioridade = 'high'
             titulo = f'Estoque Baixo: {produto.nome}'
