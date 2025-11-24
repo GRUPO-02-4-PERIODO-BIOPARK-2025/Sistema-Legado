@@ -1,5 +1,33 @@
-// PDV JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+// PDV JavaScript - Versão 3.0 com opções de cartão
+console.log('🚀 Script PDV carregado!');
+
+// Aguardar DOM estar completamente pronto
+window.addEventListener('load', function() {
+    console.log('✅ Window load event - iniciando...');
+    
+    setTimeout(function() {
+        console.log('=== DEBUG VERSÃO 3.0 ===');
+        
+        // Buscar elementos
+        const testeCartao = document.getElementById('cartao-opcoes');
+        console.log('Busca cartao-opcoes:', testeCartao);
+        
+        if (!testeCartao) {
+            console.error('❌ ERRO: Elemento cartao-opcoes NÃO ENCONTRADO!');
+            console.log('Procurando no body...', document.body ? 'Body existe' : 'Body não existe');
+            const pagamentoCard = document.querySelector('.pagamento-card');
+            console.log('pagamento-card encontrado?', pagamentoCard);
+        } else {
+            console.log('✅ Elemento cartao-opcoes encontrado!');
+        }
+        
+        inicializarPDV();
+    }, 100); // Aguardar 100ms para garantir que tudo está renderizado
+});
+
+function inicializarPDV() {
+    console.log('Inicializando PDV...');
+    
     const modal = document.getElementById('modal-produto');
     const btnAdicionar = document.getElementById('btn-adicionar');
     const btnCancelar = document.getElementById('btn-cancelar');
@@ -9,8 +37,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const valorRecebidoInput = document.getElementById('valor-recebido');
     const trocoInput = document.getElementById('troco');
     const tabBtns = document.querySelectorAll('.tab-btn');
+    const cartaoOpcoes = document.getElementById('cartao-opcoes');
+    const parcelasGroup = document.getElementById('parcelas-group');
+    const trocoGroup = document.getElementById('troco-group');
+    const cartaoTipoBtns = document.querySelectorAll('.cartao-tipo-btn');
+    const parcelasInput = document.getElementById('parcelas-input');
+    const cartaoTipoHidden = document.getElementById('cartao-tipo');
+    const cartaoParcelasHidden = document.getElementById('cartao-parcelas');
     
     let tipoSelecionado = 'dinheiro';
+    let cartaoTipo = 'debito';
+    
+    console.log('Elementos encontrados:', {
+        cartaoOpcoes: !!cartaoOpcoes,
+        tabBtns: tabBtns.length,
+        cartaoTipoBtns: cartaoTipoBtns.length
+    });
     
     // Abrir modal
     btnAdicionar.addEventListener('click', () => {
@@ -140,6 +182,65 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // CRIAR elementos de cartão dinamicamente se não existirem
+    function criarOpcoesCartao() {
+        let cartaoDiv = document.getElementById('cartao-opcoes');
+        
+        if (!cartaoDiv) {
+            console.log('🔧 Criando opções de cartão dinamicamente...');
+            const pagamentoInputs = document.querySelector('.pagamento-inputs');
+            
+            if (pagamentoInputs) {
+                cartaoDiv = document.createElement('div');
+                cartaoDiv.id = 'cartao-opcoes';
+                cartaoDiv.style.cssText = 'display: none; margin-top: 20px; padding: 20px; background: white; border: 3px solid #7b2ff7; border-radius: 10px;';
+                
+                cartaoDiv.innerHTML = `
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;">💳 Tipo de Cartão</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <button type="button" class="cartao-tipo-btn-dynamic" data-tipo="debito" style="padding: 14px; border: 2px solid #7b2ff7; border-radius: 8px; background: linear-gradient(90deg, #7b2ff7, #9b41ff); color: white; font-size: 15px; font-weight: bold; cursor: pointer;">Débito</button>
+                            <button type="button" class="cartao-tipo-btn-dynamic" data-tipo="credito" style="padding: 14px; border: 2px solid #d2d2d7; border-radius: 8px; background: white; color: #1d1d1f; font-size: 15px; font-weight: bold; cursor: pointer;">Crédito</button>
+                        </div>
+                    </div>
+                    <div id="parcelas-group-dynamic" style="display: none;">
+                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;">📊 Número de Parcelas</label>
+                        <input type="number" id="parcelas-input-dynamic" min="1" max="12" value="1" style="width: 100%; padding: 14px; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 18px; font-weight: bold;">
+                    </div>
+                `;
+                
+                pagamentoInputs.appendChild(cartaoDiv);
+                console.log('✅ Opções de cartão criadas!');
+                
+                // Adicionar eventos aos botões criados
+                const btnsDebCred = cartaoDiv.querySelectorAll('.cartao-tipo-btn-dynamic');
+                btnsDebCred.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        btnsDebCred.forEach(b => {
+                            b.style.background = 'white';
+                            b.style.color = '#1d1d1f';
+                            b.style.borderColor = '#d2d2d7';
+                        });
+                        this.style.background = 'linear-gradient(90deg, #7b2ff7, #9b41ff)';
+                        this.style.color = 'white';
+                        this.style.borderColor = '#7b2ff7';
+                        
+                        const tipo = this.dataset.tipo;
+                        const parcelasDiv = document.getElementById('parcelas-group-dynamic');
+                        
+                        if (tipo === 'credito') {
+                            parcelasDiv.style.display = 'block';
+                        } else {
+                            parcelasDiv.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+        
+        return cartaoDiv;
+    }
+    
     // Tabs de pagamento
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -148,8 +249,73 @@ document.addEventListener('DOMContentLoaded', function() {
             tipoSelecionado = this.dataset.tipo;
             valorRecebidoInput.value = '';
             trocoInput.value = '';
+            
+            // Criar ou buscar opções de cartão
+            let cartaoDiv = criarOpcoesCartao();
+            const trocoDiv = document.getElementById('troco-group');
+            
+            if (tipoSelecionado === 'cartao') {
+                console.log('🎯 Cartão selecionado!');
+                if (cartaoDiv) {
+                    cartaoDiv.style.display = 'block';
+                    console.log('✅ Mostrando opções de cartão');
+                }
+                if (trocoDiv) {
+                    trocoDiv.style.display = 'none';
+                }
+            } else {
+                if (cartaoDiv) {
+                    cartaoDiv.style.display = 'none';
+                }
+                if (trocoDiv) {
+                    trocoDiv.style.display = 'block';
+                }
+            }
         });
     });
+    
+    // Tipo de cartão (débito/crédito) - usando delegação de eventos
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('cartao-tipo-btn')) {
+            // Remover estilo ativo de todos
+            document.querySelectorAll('.cartao-tipo-btn').forEach(btn => {
+                btn.style.background = 'white';
+                btn.style.color = '#1d1d1f';
+                btn.style.borderColor = '#d2d2d7';
+            });
+            
+            // Adicionar estilo ativo no clicado
+            e.target.style.background = 'linear-gradient(90deg, #7b2ff7, #9b41ff)';
+            e.target.style.color = 'white';
+            e.target.style.borderColor = '#7b2ff7';
+            
+            cartaoTipo = e.target.dataset.tipo;
+            if (cartaoTipoHidden) cartaoTipoHidden.value = cartaoTipo;
+            
+            // Mostrar parcelas apenas para crédito
+            const parcelasDiv = document.getElementById('parcelas-group');
+            const parcelasInp = document.getElementById('parcelas-input');
+            
+            if (cartaoTipo === 'credito') {
+                if (parcelasDiv) parcelasDiv.style.display = 'block';
+            } else {
+                if (parcelasDiv) parcelasDiv.style.display = 'none';
+                if (parcelasInp) parcelasInp.value = '1';
+                if (cartaoParcelasHidden) cartaoParcelasHidden.value = '1';
+            }
+        }
+    });
+    
+    // Atualizar número de parcelas
+    if (parcelasInput) {
+        parcelasInput.addEventListener('change', function() {
+            let parcelas = parseInt(this.value) || 1;
+            if (parcelas < 1) parcelas = 1;
+            if (parcelas > 12) parcelas = 12;
+            this.value = parcelas;
+            cartaoParcelasHidden.value = parcelas;
+        });
+    }
     
     // Calcular troco
     valorRecebidoInput.addEventListener('input', calcularTroco);
@@ -157,14 +323,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function calcularTroco() {
         const valorRecebido = parseFloat(valorRecebidoInput.value) || 0;
         const total = parseFloat(document.getElementById('total').textContent);
-        const troco = valorRecebido - total;
         
-        if (troco >= 0) {
-            trocoInput.value = `R$ ${troco.toFixed(2)}`;
-            trocoInput.style.color = '#34c759';
+        // Não calcular troco para cartão
+        if (tipoSelecionado === 'cartao') {
+            trocoInput.value = '';
         } else {
-            trocoInput.value = `Falta: R$ ${Math.abs(troco).toFixed(2)}`;
-            trocoInput.style.color = '#ff3b30';
+            const troco = valorRecebido - total;
+            
+            if (troco >= 0) {
+                trocoInput.value = `R$ ${troco.toFixed(2)}`;
+                trocoInput.style.color = '#34c759';
+            } else {
+                trocoInput.value = `Falta: R$ ${Math.abs(troco).toFixed(2)}`;
+                trocoInput.style.color = '#ff3b30';
+            }
         }
         
         // Armazenar valor no hidden input correspondente
@@ -237,7 +409,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const valorRecebido = parseFloat(valorRecebidoInput.value) || 0;
         const total = parseFloat(document.getElementById('total').textContent);
         
-        if (valorRecebido < total) {
+        // Para cartão, não precisa validar valor recebido (não tem troco)
+        if (tipoSelecionado !== 'cartao' && valorRecebido < total) {
             alert('Valor insuficiente para finalizar a venda!');
             return;
         }
@@ -247,10 +420,26 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Preparar dados de pagamento
             const formData = new URLSearchParams();
-            formData.append('pagamento_dinheiro', document.getElementById('pagamento-dinheiro').value);
-            formData.append('pagamento_cartao', document.getElementById('pagamento-cartao').value);
-            formData.append('pagamento_pix', document.getElementById('pagamento-pix').value);
-            formData.append('pagamento_outros', document.getElementById('pagamento-outros').value);
+            formData.append('pagamento_dinheiro', document.getElementById('pagamento-dinheiro')?.value || '0');
+            formData.append('pagamento_cartao', document.getElementById('pagamento-cartao')?.value || '0');
+            formData.append('pagamento_pix', document.getElementById('pagamento-pix')?.value || '0');
+            formData.append('pagamento_outros', document.getElementById('pagamento-outros')?.value || '0');
+            
+            // Adicionar informações do cartão se for pagamento com cartão
+            if (tipoSelecionado === 'cartao') {
+                // Buscar tipo de cartão selecionado
+                const btnAtivo = document.querySelector('.cartao-tipo-btn-dynamic[style*="linear-gradient"]');
+                const tipoCartao = btnAtivo ? btnAtivo.dataset.tipo : 'debito';
+                
+                // Buscar número de parcelas
+                const parcelasInput = document.getElementById('parcelas-input-dynamic');
+                const numParcelas = parcelasInput ? parcelasInput.value : '1';
+                
+                formData.append('cartao_tipo', tipoCartao);
+                formData.append('cartao_parcelas', numParcelas);
+                
+                console.log('Finalizando com cartão:', tipoCartao, 'Parcelas:', numParcelas);
+            }
             
             const response = await fetch('/vendas/finalizar/', {
                 method: 'POST',
@@ -289,4 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-});
+}
+
+console.log('✅ Script PDV carregado completamente!');
