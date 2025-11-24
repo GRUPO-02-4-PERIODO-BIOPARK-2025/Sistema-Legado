@@ -1,6 +1,14 @@
 from django import forms
+from .models import Produto
 
-class ProdutoForm(forms.Form):
-    nome = forms.CharField(max_length=255)
-    preco = forms.DecimalField(max_digits=10, decimal_places=2)
-    estoque = forms.IntegerField(min_value=0)
+class ProdutoForm(forms.ModelForm):
+    class Meta:
+        model = Produto
+        fields = [
+            'nome',
+            'sku',
+            'categoria',
+            'preco',
+            'estoque',
+            'peso',
+        ]

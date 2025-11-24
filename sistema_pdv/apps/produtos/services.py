@@ -1,4 +1,4 @@
-"""Produtos services (stock logic) placeholder"""
+from .models import Produto
 
-def verificar_estoque_baixo(threshold=10):
-    return []
+def buscar_produtos():
+    return Produto.objects.all().order_by('nome')
