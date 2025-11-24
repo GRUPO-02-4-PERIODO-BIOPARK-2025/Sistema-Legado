@@ -1,4 +1,121 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<h1>Produtos</h1>
+
+<link rel="stylesheet" href="{% static 'produtos/produtos.css' %}">
+<script src="{% static 'produtos/produtos.js' %}"></script>
+
+<section class="produtos-page">
+	<div class="header">
+		<h1>Produtos</h1>
+	</div>
+
+	<div class="form-panel">
+		<form method="post" action="{% if edit_id %}{% url 'produtos:edit' edit_id %}{% else %}{% url 'produtos:create' %}{% endif %}">
+			{% csrf_token %}
+
+			<div class="row">
+				<div class="col">
+					{{ form.nome.label_tag }}
+					{{ form.nome }}
+				</div>
+
+				<div class="col">
+					{{ form.sku.label_tag }}
+					{{ form.sku }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.categoria.label_tag }}
+					{{ form.categoria }}
+				</div>
+
+				<div class="col">
+					{{ form.preco.label_tag }}
+					{{ form.preco }}
+					<div class="field-error" id="preco-error"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					{{ form.estoque.label_tag }}
+					{{ form.estoque }}
+				</div>
+
+				<div class="col">
+					{{ form.peso.label_tag }}
+					{{ form.peso }}
+					<div class="field-error" id="peso-error"></div>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+
+				{% if edit_id %}
+					<a href="{% url 'produtos:index' %}" class="btn btn-secondary">Cancelar</a>
+				{% endif %}
+			</div>
+		</form>
+
+		{% if edit_id %}
+		<form method="post" action="{% url 'produtos:delete' edit_id %}" 
+			  onsubmit="return confirm('Confirma exclusão deste produto?');"
+			  style="display:inline-block;margin-top:8px;">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-delete">Excluir</button>
+		</form>
+		{% endif %}
+	</div>
+
+	<div class="list-panel">
+		<h2>Lista de Produtos</h2>
+
+		<table class="produtos-table">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>SKU</th>
+					<th>Categoria</th>
+					<th>Preço</th>
+					<th>Estoque</th>
+					<th>Peso</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for p in produtos %}
+				<tr>
+					<td>{{ p.nome }}</td>
+					<td>{{ p.sku }}</td>
+					<td>{{ p.categoria }}</td>
+					<td>R$ {{ p.preco }}</td>
+					<td>{{ p.estoque }}</td>
+					<td>{{ p.peso }} kg</td>
+
+					<td class="actions-col">
+						<a class="action edit" href="{% url 'produtos:edit' p.pk %}">Editar</a>
+
+						<form method="post" action="{% url 'produtos:delete' p.pk %}" 
+							  class="inline-form"
+							  onsubmit="return confirm('Confirma exclusão deste produto?');">
+							{% csrf_token %}
+							<button type="submit" class="action delete">Excluir</button>
+						</form>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="7">Nenhum produto cadastrado.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+</section>
 {% endblock %}

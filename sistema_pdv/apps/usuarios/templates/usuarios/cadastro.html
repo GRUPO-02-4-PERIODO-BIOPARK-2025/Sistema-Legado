@@ -48,6 +48,14 @@
           {% endif %}
         </div>
 
+        <div class="input-group">
+          <label>Tipo de Usuário</label>
+          {{ form.tipo_usuario }}
+          {% if form.tipo_usuario.errors %}
+            <span class="error">{{ form.tipo_usuario.errors.0 }}</span>
+          {% endif %}
+        </div>
+
         <div class="input-group password-group">
           <label>Senha</label>
           <div class="password-wrapper">
@@ -88,7 +96,6 @@
   </div>
 
   <script>
-    // Função para mostrar/ocultar senha
     document.addEventListener('DOMContentLoaded', function() {
       const toggleButtons = document.querySelectorAll('.toggle-password');
       

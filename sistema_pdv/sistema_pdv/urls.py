@@ -19,4 +19,5 @@ urlpatterns = [
     path('estoque/', include('apps.estoque.urls')),
     path('vendas/', include('apps.vendas.urls')),
     path('', include('apps.notificacoes.urls')),
-]
+    path('relatorios/', include('apps.relatorios.urls')),
+    ]
