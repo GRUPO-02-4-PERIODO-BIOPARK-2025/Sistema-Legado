@@ -27,6 +27,13 @@ def processar_venda(venda):
                     produto=produto,
                     quantidade=-item.quantidade
                 )
+                
+                # Verificar se precisa gerar notificação de estoque baixo
+                try:
+                    from apps.notificacoes.services import verificar_estoque_baixo
+                    verificar_estoque_baixo(produto)
+                except Exception as e:
+                    print(f"Erro ao verificar estoque baixo: {e}")
             
             # Marcar venda como finalizada
             venda.finalizada = True

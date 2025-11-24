@@ -8,6 +8,7 @@ class Produto(models.Model):
 
     preco = models.DecimalField('Preço (R$)', max_digits=10, decimal_places=2)
     estoque = models.IntegerField('Quantidade em Estoque')
+    estoque_min = models.IntegerField('Estoque Mínimo', default=10, help_text='Quantidade mínima antes de gerar alerta')
     peso = models.DecimalField('Peso (kg)', max_digits=10, decimal_places=2, blank=True, null=True)
 
     class Meta:

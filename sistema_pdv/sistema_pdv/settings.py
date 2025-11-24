@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.vendas',
     'apps.dashboard',
     'apps.usuarios',
+    'apps.notificacoes',
 ]
 
 MIDDLEWARE = [

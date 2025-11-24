@@ -10,5 +10,6 @@ class ProdutoForm(forms.ModelForm):
             'categoria',
             'preco',
             'estoque',
+            'estoque_min',
             'peso',
         ]

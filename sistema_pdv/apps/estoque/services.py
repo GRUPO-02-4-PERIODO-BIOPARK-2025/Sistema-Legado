@@ -14,4 +14,12 @@ def ajustar_estoque(produto_id, delta):
     produto.save()
 
     MovimentoEstoque.objects.create(produto=produto, quantidade=delta, data=timezone.now())
+    
+    # Verificar se precisa gerar notificação de estoque baixo
+    try:
+        from apps.notificacoes.services import verificar_estoque_baixo
+        verificar_estoque_baixo(produto)
+    except Exception as e:
+        print(f"Erro ao verificar estoque baixo: {e}")
+    
     return produto
