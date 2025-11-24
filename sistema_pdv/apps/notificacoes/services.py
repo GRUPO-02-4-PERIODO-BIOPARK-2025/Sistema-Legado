@@ -16,14 +16,8 @@ def verificar_estoque_baixo(produto):
         dict: {'created': bool, 'notification': Notification ou None}
     """
     try:
-        # Buscar threshold do produto
-        threshold = StockThreshold.objects.filter(
-            produto=produto,
-            ativo=True
-        ).first()
-        
-        # Se não houver threshold configurado, usa padrão de 10
-        quantidade_minima = threshold.quantidade_minima if threshold else 10
+        # Usar estoque_min do produto (campo agora presente no modelo)
+        quantidade_minima = getattr(produto, 'estoque_min', 10)
         
         # Verificar se já existe notificação não lida recente (últimas 24h)
         from datetime import timedelta

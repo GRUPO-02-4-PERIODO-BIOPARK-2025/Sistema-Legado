@@ -20,7 +20,13 @@ def create(request):
     if request.method == 'POST':
         form = ProdutoForm(request.POST)
         if form.is_valid():
-            form.save()
+            produto = form.save()
+            # Verificar se precisa gerar notificação de estoque baixo
+            try:
+                from apps.notificacoes.services import verificar_estoque_baixo
+                verificar_estoque_baixo(produto)
+            except Exception as e:
+                print(f"Erro ao verificar estoque baixo: {e}")
             return redirect(reverse('produtos:index'))
 
     return redirect(reverse('produtos:index'))
@@ -32,7 +38,13 @@ def edit(request, pk):
     if request.method == 'POST':
         form = ProdutoForm(request.POST, instance=produto)
         if form.is_valid():
-            form.save()
+            produto = form.save()
+            # Verificar se precisa gerar notificação de estoque baixo
+            try:
+                from apps.notificacoes.services import verificar_estoque_baixo
+                verificar_estoque_baixo(produto)
+            except Exception as e:
+                print(f"Erro ao verificar estoque baixo: {e}")
             return redirect(reverse('produtos:index'))
     else:
         form = ProdutoForm(instance=produto)
