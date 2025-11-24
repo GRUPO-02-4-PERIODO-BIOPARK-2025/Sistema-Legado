@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'vendas/pdv.css' %}">
+<!-- ✅ VERSÃO 4.0 FINAL - DEVE APARECER CAIXA VERDE -->
+<link rel="stylesheet" href="{% static 'vendas/pdv.css' %}?v=20251124140500">
 
 <section class="pdv-container">
 	<div class="pdv-content">
@@ -65,38 +66,55 @@
 				</div>
 			</div>
 
-			<!-- Formas de Pagamento -->
-			<div class="pagamento-card">
-				<h3 class="pagamento-title">Formas de Pagamento</h3>
-				
-				<div class="pagamento-tabs">
+		<!-- Formas de Pagamento -->
+		<div class="pagamento-card">
+			<div style="background: #00ff00; color: #000; padding: 15px; border: 3px solid #000; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 18px;">
+				✅ VERSÃO 4.0 CARREGADA - SE VER ISSO, ESTÁ ATUALIZADO!
+			</div>
+			<h3 class="pagamento-title">Formas de Pagamento</h3>				<div class="pagamento-tabs">
 					<button class="tab-btn active" data-tipo="dinheiro">Dinheiro</button>
 					<button class="tab-btn" data-tipo="cartao">Cartão</button>
 					<button class="tab-btn" data-tipo="pix">PIX</button>
-					<button class="tab-btn" data-tipo="outros">Outros</button>
-				</div>
-
-				<div class="pagamento-inputs">
-					<div class="form-group">
-						<label>Valor Recebido</label>
-						<input type="number" id="valor-recebido" step="0.01" min="0" placeholder="R$ 0,00" class="valor-input">
-					</div>
-					
-					<div class="form-group">
-						<label>Troco</label>
-						<input type="text" id="troco" readonly placeholder="R$ 0,00" class="valor-input readonly">
-					</div>
-				</div>
-
-				<!-- Valores por forma de pagamento (hidden inputs) -->
-				<input type="hidden" id="pagamento-dinheiro" value="0">
-				<input type="hidden" id="pagamento-cartao" value="0">
-				<input type="hidden" id="pagamento-pix" value="0">
-				<input type="hidden" id="pagamento-outros" value="0">
+				<button class="tab-btn" data-tipo="outros">Outros</button>
 			</div>
 
-			<!-- Código de Barras -->
-			<div class="barcode-card">
+			<div class="pagamento-inputs">
+				<div class="form-group">
+					<label>Valor Recebido</label>
+					<input type="number" id="valor-recebido" step="0.01" min="0" placeholder="R$ 0,00" class="valor-input">
+				</div>
+				
+				<div class="form-group" id="troco-group">
+					<label>Troco</label>
+					<input type="text" id="troco" readonly placeholder="R$ 0,00" class="valor-input readonly">
+				</div>
+				
+				<!-- CARTÃO: Débito/Crédito e Parcelas -->
+				<div id="cartao-opcoes" style="display: none; margin-top: 16px; padding: 16px; background: white; border: 2px solid #7b2ff7; border-radius: 8px;">
+					<div style="margin-bottom: 16px;">
+						<label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #1d1d1f;">💳 Tipo de Cartão</label>
+						<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+							<button type="button" class="cartao-tipo-btn" data-tipo="debito" style="padding: 12px; border: 2px solid #7b2ff7; border-radius: 6px; background: linear-gradient(90deg, #7b2ff7, #9b41ff); color: white; font-size: 14px; font-weight: 600; cursor: pointer;">Débito</button>
+							<button type="button" class="cartao-tipo-btn" data-tipo="credito" style="padding: 12px; border: 2px solid #d2d2d7; border-radius: 6px; background: white; color: #1d1d1f; font-size: 14px; font-weight: 600; cursor: pointer;">Crédito</button>
+						</div>
+					</div>
+					
+					<div id="parcelas-group" style="display: none;">
+						<label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #1d1d1f;">📊 Número de Parcelas</label>
+						<input type="number" id="parcelas-input" min="1" max="12" value="1" style="width: 100%; padding: 12px; border: 2px solid #d2d2d7; border-radius: 6px; font-size: 16px; font-weight: 600;">
+					</div>
+				</div>
+			</div>		<!-- Valores por forma de pagamento (hidden inputs) -->
+		<input type="hidden" id="pagamento-dinheiro" value="0">
+		<input type="hidden" id="pagamento-cartao" value="0">
+		<input type="hidden" id="pagamento-pix" value="0">
+		<input type="hidden" id="pagamento-outros" value="0">
+		<input type="hidden" id="cartao-tipo" value="debito">
+		<input type="hidden" id="cartao-parcelas" value="1">
+	</div>
+
+	<!-- Código de Barras -->
+	<div class="barcode-card">
 				<h3 class="barcode-title">Código de Barras</h3>
 				<div class="barcode">
 					<div class="barcode-lines">
@@ -142,6 +160,68 @@
 	</div>
 </div>
 
-<script src="{% static 'vendas/pdv.js' %}"></script>
+<script>
+// Script inline para garantir funcionamento imediato - v3.2
+console.log('🚀 Script inline carregado!');
+
+// Adicionar evento aos botões de pagamento
+document.querySelectorAll('.tab-btn').forEach(btn => {
+	btn.addEventListener('click', function() {
+		const tipo = this.getAttribute('data-tipo');
+		console.log('Botão clicado:', tipo);
+		
+		// Remover active de todos
+		document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+		this.classList.add('active');
+		
+		const cartaoDiv = document.getElementById('cartao-opcoes');
+		const trocoDiv = document.getElementById('troco-group');
+		
+		if (tipo === 'cartao') {
+			console.log('Mostrando opções de cartão');
+			if (cartaoDiv) {
+				cartaoDiv.style.display = 'block';
+				alert('✅ Opções de cartão ativadas! Você deve ver uma caixa roxa abaixo.');
+			} else {
+				alert('❌ ERRO: Elemento cartao-opcoes não encontrado!');
+			}
+			if (trocoDiv) trocoDiv.style.display = 'none';
+		} else {
+			if (cartaoDiv) cartaoDiv.style.display = 'none';
+			if (trocoDiv) trocoDiv.style.display = 'block';
+		}
+	});
+});
+
+// Botões de débito/crédito
+document.addEventListener('click', function(e) {
+	if (e.target.classList.contains('cartao-tipo-btn')) {
+		const tipo = e.target.getAttribute('data-tipo');
+		
+		// Resetar estilos
+		document.querySelectorAll('.cartao-tipo-btn').forEach(btn => {
+			btn.style.background = 'white';
+			btn.style.color = '#1d1d1f';
+			btn.style.borderColor = '#d2d2d7';
+		});
+		
+		// Aplicar estilo ativo
+		e.target.style.background = 'linear-gradient(90deg, #7b2ff7, #9b41ff)';
+		e.target.style.color = 'white';
+		e.target.style.borderColor = '#7b2ff7';
+		
+		const parcelasDiv = document.getElementById('parcelas-group');
+		if (tipo === 'credito') {
+			if (parcelasDiv) parcelasDiv.style.display = 'block';
+		} else {
+			if (parcelasDiv) parcelasDiv.style.display = 'none';
+		}
+	}
+});
+
+console.log('✅ Script inline configurado!');
+</script>
+
+<script src="{% static 'vendas/pdv.js' %}?v=20251124143000"></script>
 
 {% endblock %}
