@@ -1,16 +1,326 @@
 {% extends 'base.html' %}
 {% block content %}
-<div style="padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1>Dashboard</h1>
-        <div>
-            <span style="margin-right: 15px; color: #555;">Olá, <strong>{{ user.first_name|default:user.username }}</strong>!</span>
-            <form method="POST" action="{% url 'usuarios:logout' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" style="background: linear-gradient(90deg, #7b2ff7, #9b41ff); color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 14px;">Sair</button>
-            </form>
-        </div>
+<style>
+  .dashboard-container {
+    padding: 30px;
+    background: #f5f5f7;
+    min-height: 100vh;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+  }
+  
+  .dashboard-title-section h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+  
+  .dashboard-title-section p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #86868b;
+  }
+  
+  .dashboard-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn-relatorios, .btn-nova-venda {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .btn-relatorios {
+    background: white;
+    color: #7b2ff7;
+    border: 2px solid #7b2ff7;
+  }
+  
+  .btn-relatorios:hover {
+    background: #f5f0ff;
+  }
+  
+  .btn-nova-venda {
+    background: linear-gradient(90deg, #7b2ff7, #9b41ff);
+    color: white;
+    border: none;
+  }
+  
+  .btn-nova-venda:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(123, 47, 247, 0.3);
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    position: relative;
+  }
+  
+  .stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  
+  .stat-title {
+    font-size: 13px;
+    color: #86868b;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .stat-icon {
+    width: 24px;
+    height: 24px;
+    color: #7b2ff7;
+  }
+  
+  .stat-icon.blue {
+    color: #0071e3;
+  }
+  
+  .stat-icon.orange {
+    color: #ff9500;
+  }
+  
+  .stat-icon.green {
+    color: #34c759;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin: 0 0 8px 0;
+  }
+  
+  .stat-change {
+    font-size: 12px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .stat-change.positive {
+    color: #34c759;
+  }
+  
+  .stat-change.negative {
+    color: #ff3b30;
+  }
+  
+  .stat-change svg {
+    width: 12px;
+    height: 12px;
+  }
+</style>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="dashboard-title-section">
+      <h1>Dashboard</h1>
+      <p>Visão geral do seu negócio</p>
     </div>
-    <p>Bem-vindo ao sistema PDV!</p>
+    <div class="dashboard-actions">
+      <a href="{% url 'relatorios:index' %}" class="btn-relatorios">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 17l-5-5-3 3-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Relatórios
+      </a>
+      <a href="{% url 'vendas:index' %}" class="btn-nova-venda">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Nova Venda
+      </a>
+    </div>
+  </div>
+  
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <h3 class="stat-title">Vendas Hoje</h3>
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="stat-value">R$ {{ total_vendas_hoje|floatformat:2 }}</p>
+      <p class="stat-change positive">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        +12.5% vs ontem
+      </p>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-header">
+        <h3 class="stat-title">Vendas do Mês</h3>
+        <svg class="stat-icon blue" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 17l-5-5-3 3-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="stat-value">R$ {{ total_vendas_mes|floatformat:2 }}</p>
+      <p class="stat-change positive">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        +8.2% vs mês anterior
+      </p>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-header">
+        <h3 class="stat-title">Produtos em Estoque</h3>
+        <svg class="stat-icon orange" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 16V8l-9-5-9 5v8l9 5 9-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 13l9-5M12 13v8M12 13L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="stat-value">{{ produtos_em_estoque }}</p>
+      <p class="stat-change negative">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        -3.1% produtos ativos
+      </p>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-header">
+        <h3 class="stat-title">Clientes Ativos</h3>
+        <svg class="stat-icon green" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <p class="stat-value">{{ clientes_ativos }}</p>
+      <p class="stat-change positive">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        +5.7% este mês
+      </p>
+    </div>
+  </div>
+  
+  <!-- Gráfico de Vendas Mensais -->
+  <div style="margin-top: 30px; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin: 0 0 20px 0;">Vendas Mensais</h2>
+    <canvas id="vendasChart" style="max-height: 300px;"></canvas>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('vendasChart').getContext('2d');
+  const mesesLabels = {{ meses_labels|safe }};
+  const vendasData = {{ vendas_mensais_data|safe }};
+  
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: mesesLabels,
+      datasets: [{
+        label: 'Vendas Mensais',
+        data: vendasData,
+        borderColor: '#7b2ff7',
+        backgroundColor: 'rgba(123, 47, 247, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#7b2ff7',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              return 'R$ ' + context.parsed.y.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#86868b',
+            font: {
+              size: 12
+            },
+            callback: function(value) {
+              return 'R$ ' + value.toFixed(0);
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            color: '#86868b',
+            font: {
+              size: 12
+            }
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    }
+  });
+</script>
 {% endblock %}

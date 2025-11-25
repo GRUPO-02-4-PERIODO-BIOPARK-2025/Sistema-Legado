@@ -1,16 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 
 from apps.produtos.models import Produto
+from apps.clientes.models import Cliente
 from .models import Venda, ItemVenda, Pagamento
 from .services import processar_venda, cancelar_venda
 
 
+@login_required(login_url='usuarios:login')
 def index(request):
+    from apps.clientes.models import Cliente
+    
     # Buscar ou criar venda em aberto para o usuário
     venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
     
@@ -19,11 +24,13 @@ def index(request):
     
     itens = venda.itemvenda_set.select_related('produto').all()
     produtos = Produto.objects.filter(estoque__gt=0).order_by('nome')
+    clientes = Cliente.objects.all().order_by('nome')
     
     context = {
         'venda': venda,
         'itens': itens,
         'produtos': produtos,
+        'clientes': clientes,
     }
     return render(request, 'vendas/index.html', context)
 
@@ -190,6 +197,33 @@ def aplicar_frete(request):
 
 
 @require_POST
+def associar_cliente(request):
+    try:
+        cliente_id = request.POST.get('cliente_id')
+        venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
+        
+        if not venda:
+            return JsonResponse({'success': False, 'message': 'Nenhuma venda em aberto'})
+        
+        if cliente_id and cliente_id != '':
+            cliente = get_object_or_404(Cliente, pk=cliente_id)
+            venda.cliente = cliente
+            cliente_nome = cliente.nome
+        else:
+            venda.cliente = None
+            cliente_nome = 'Cliente não informado'
+        
+        venda.save()
+        
+        return JsonResponse({
+            'success': True,
+            'cliente_nome': cliente_nome,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
 def finalizar_venda(request):
     try:
         with transaction.atomic():
@@ -206,6 +240,9 @@ def finalizar_venda(request):
                 'outros': float(request.POST.get('pagamento_outros', 0)),
             }
             
+            # Capturar número de parcelas do cartão (aceita ambos os nomes)
+            parcelas_cartao = int(request.POST.get('cartao_parcelas', request.POST.get('parcelas_cartao', 1)))
+            
             total_pago = sum(pagamentos_data.values())
             
             if total_pago < float(venda.total):
@@ -215,13 +252,48 @@ def finalizar_venda(request):
                 })
             
             # Criar registros de pagamento
+            from apps.vendas.models import Parcela
+            from datetime import timedelta
+            
             for tipo, valor in pagamentos_data.items():
                 if valor > 0:
-                    Pagamento.objects.create(
+                    # Se for cartão, usar o número de parcelas informado
+                    parcelas = parcelas_cartao if tipo == 'cartao' else 1
+                    
+                    pagamento = Pagamento.objects.create(
                         venda=venda,
                         tipo=tipo,
-                        valor=valor
+                        valor=valor,
+                        parcelas=parcelas
                     )
+                    
+                    # Criar as parcelas individuais
+                    if parcelas == 1:
+                        # À vista - criar parcela única já paga
+                        Parcela.objects.create(
+                            pagamento=pagamento,
+                            numero=1,
+                            valor=valor,
+                            status='pago',
+                            data_vencimento=venda.data.date(),
+                            data_pagamento=venda.data,
+                            usuario_baixa=request.user
+                        )
+                    else:
+                        # Parcelado - criar parcelas pendentes
+                        valor_parcela = valor / parcelas
+                        for i in range(1, parcelas + 1):
+                            # Vencimento: 30 dias para cada parcela
+                            dias_vencimento = 30 * i
+                            data_vencimento = venda.data.date() + timedelta(days=dias_vencimento)
+                            
+                            Parcela.objects.create(
+                                pagamento=pagamento,
+                                numero=i,
+                                valor=valor_parcela,
+                                status='pendente',
+                                data_vencimento=data_vencimento
+                            )
             
             # Processar venda (atualizar estoque)
             resultado = processar_venda(venda)
@@ -251,15 +323,43 @@ def cancelar(request):
         return JsonResponse({'success': False, 'message': str(e)})
 
 
+@require_POST
+def atualizar_cliente(request):
+    """Atualiza o cliente da venda em aberto"""
+    try:
+        from apps.clientes.models import Cliente
+        
+        cliente_id = request.POST.get('cliente_id')
+        venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
+        
+        if not venda:
+            return JsonResponse({'success': False, 'message': 'Nenhuma venda em aberto'})
+        
+        if cliente_id and cliente_id != '':
+            cliente = get_object_or_404(Cliente, pk=cliente_id)
+            venda.cliente = cliente
+        else:
+            venda.cliente = None
+        
+        venda.save()
+        
+        return JsonResponse({
+            'success': True,
+            'cliente_nome': venda.cliente.nome if venda.cliente else 'Sem cliente'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
 def gerenciar_vendas(request):
     """View para gerenciar vendas finalizadas"""
-    vendas = Venda.objects.filter(finalizada=True).select_related('cliente', 'usuario').order_by('-data')
+    vendas = Venda.objects.filter(finalizada=True).select_related('cliente', 'usuario').prefetch_related('pagamentos__parcelas_detalhes').order_by('-data')
     
     # Filtros
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
     cliente = request.GET.get('cliente')
-    status = request.GET.get('status')
+    status_filtro = request.GET.get('status')
     
     if data_inicio:
         vendas = vendas.filter(data__date__gte=data_inicio)
@@ -268,12 +368,21 @@ def gerenciar_vendas(request):
     if cliente:
         vendas = vendas.filter(Q(cliente__nome__icontains=cliente) | Q(codigo_barras__icontains=cliente))
     
+    # Filtrar por status de pagamento
+    if status_filtro:
+        vendas_filtradas = []
+        for venda in vendas:
+            status_venda = venda.get_status_pagamento()
+            if status_venda['status'] == status_filtro:
+                vendas_filtradas.append(venda.id)
+        vendas = vendas.filter(id__in=vendas_filtradas)
+    
     context = {
         'vendas': vendas,
         'data_inicio': data_inicio or '',
         'data_fim': data_fim or '',
         'cliente': cliente or '',
-        'status': status or '',
+        'status': status_filtro or '',
     }
     return render(request, 'vendas/gerenciar.html', context)
 
@@ -292,11 +401,30 @@ def detalhes_venda(request, venda_id):
             'subtotal': float(item.subtotal),
         } for item in itens]
         
-        pagamentos_data = [{
-            'tipo': p.get_tipo_display(),
-            'valor': float(p.valor),
-            'parcelas': p.parcelas if hasattr(p, 'parcelas') else 1,
-        } for p in pagamentos]
+        pagamentos_data = []
+        for p in pagamentos:
+            parcelas_info = []
+            
+            # Buscar parcelas do banco de dados
+            parcelas_db = p.parcelas_detalhes.all()
+            
+            for parcela in parcelas_db:
+                parcelas_info.append({
+                    'id': parcela.id,
+                    'numero': parcela.numero,
+                    'valor': float(parcela.valor),
+                    'status': parcela.status,
+                    'status_display': parcela.get_status_display(),
+                    'data_vencimento': parcela.data_vencimento.strftime('%d/%m/%Y') if parcela.data_vencimento else None,
+                    'data_pagamento': parcela.data_pagamento.strftime('%d/%m/%Y %H:%M') if parcela.data_pagamento else None,
+                })
+            
+            pagamentos_data.append({
+                'tipo': p.get_tipo_display(),
+                'valor': float(p.valor),
+                'parcelas': p.parcelas,
+                'parcelas_detalhes': parcelas_info
+            })
         
         return JsonResponse({
             'success': True,
@@ -334,5 +462,32 @@ def cancelar_venda_finalizada(request, venda_id):
             venda.delete()
         
         return JsonResponse({'success': True, 'message': 'Venda cancelada com sucesso'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
+def baixar_parcela(request, parcela_id):
+    """Dá baixa em uma parcela específica"""
+    try:
+        from apps.vendas.models import Parcela
+        from django.utils import timezone
+        
+        parcela = get_object_or_404(Parcela, pk=parcela_id)
+        
+        if parcela.status == 'pago':
+            return JsonResponse({'success': False, 'message': 'Esta parcela já foi paga'})
+        
+        with transaction.atomic():
+            parcela.status = 'pago'
+            parcela.data_pagamento = timezone.now()
+            parcela.usuario_baixa = request.user
+            parcela.save()
+        
+        return JsonResponse({
+            'success': True, 
+            'message': f'Parcela {parcela.numero}/{parcela.pagamento.parcelas} baixada com sucesso!',
+            'data_pagamento': parcela.data_pagamento.strftime('%d/%m/%Y %H:%M')
+        })
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})

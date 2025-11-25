@@ -248,8 +248,8 @@
             
             <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px;">
                 <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
-                    <h3 style="margin-top: 0; color: #333;">Faturamento Diário</h3>
-                    <img src="{% url 'relatorios:gerar_grafico' %}?data_inicio={{ filtros.data_inicio }}&data_fim={{ filtros.data_fim }}&cliente={{ filtros.cliente }}&funcionario={{ filtros.funcionario }}&forma_pagamento={{ filtros.forma_pagamento }}" alt="Gráfico de Faturamento" style="max-width: 100%; height: auto; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #333; font-size: 18px; font-weight: 600;">Faturamento por Dia da Semana</h3>
+                    <img src="{% url 'relatorios:gerar_grafico' %}?data_inicio={{ filtros.data_inicio }}&data_fim={{ filtros.data_fim }}&cliente={{ filtros.cliente }}&funcionario={{ filtros.funcionario }}&forma_pagamento={{ filtros.forma_pagamento }}" alt="Gráfico de Faturamento por Dia da Semana" style="max-width: 100%; height: auto; border-radius: 4px;">
                 </div>
             </div>
         </div>

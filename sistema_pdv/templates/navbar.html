@@ -10,14 +10,14 @@
   <nav class="menu">
     <div class="menu-section">PRINCIPAL</div>
     {% if user.is_superuser or user.perfil.permissao == 'administrador' %}
-    <a class="menu-item active" href="{% url 'dashboard:index' %}">
+    <a class="menu-item" href="{% url 'dashboard:index' %}" data-page="dashboard">
       <span class="icon"> <!-- home -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V10.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <span class="label">Dashboard</span>
     </a>
     {% endif %}
-    <a class="menu-item" href="{% url 'vendas:index' %}">
+    <a class="menu-item" href="{% url 'vendas:index' %}" data-page="vendas">
       <span class="icon"> <!-- cart -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h15l-1.5 9h-12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1" /><circle cx="19" cy="20" r="1"/></svg>
       </span>
@@ -25,13 +25,13 @@
     </a>
 
     {% if user.is_superuser or user.perfil.permissao == 'administrador' %}
-    <a class="menu-item" href="{% url 'produtos:index' %}">
+    <a class="menu-item" href="{% url 'produtos:index' %}" data-page="produtos">
       <span class="icon"> <!-- box -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <span class="label">Produtos</span>
     </a>
-    <a class="menu-item" href="{% url 'estoque:index' %}">
+    <a class="menu-item" href="{% url 'estoque:index' %}" data-page="estoque">
       <span class="icon"> <!-- bar chart -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v18M7 8v10M17 13v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
@@ -40,7 +40,7 @@
     {% endif %}
 
     <div class="menu-section">CADASTROS</div>
-    <a class="menu-item" href="{% url 'clientes:index' %}">
+    <a class="menu-item" href="{% url 'clientes:index' %}" data-page="clientes">
       <span class="icon"> <!-- users -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.3"/></svg>
       </span>
@@ -48,13 +48,13 @@
     </a>
 
     {% if user.is_superuser or user.perfil.permissao == 'administrador' %}
-    <a class="menu-item" href="{% url 'funcionarios:index' %}">
+    <a class="menu-item" href="{% url 'funcionarios:index' %}" data-page="funcionarios">
       <span class="icon"> <!-- user-tie -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM6 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <span class="label">Funcionários</span>
     </a>
-    <a class="menu-item" href="{% url 'fornecedores:index' %}">
+    <a class="menu-item" href="{% url 'fornecedores:index' %}" data-page="fornecedores">
       <span class="icon"> <!-- truck -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 3h13v13H1zM16 8h5l2 3v5h-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
@@ -62,13 +62,13 @@
     </a>
 
     <div class="menu-section">RELATÓRIOS</div>
-    <a class="menu-item" href="{% url 'relatorios:index' %}">
+    <a class="menu-item" href="{% url 'relatorios:index' %}" data-page="relatorios">
       <span class="icon"> <!-- file-text -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <span class="label">Relatórios</span>
     </a>
-    <a class="menu-item" href="{% url 'vendas:gerenciar' %}">
+    <a class="menu-item" href="{% url 'vendas:gerenciar' %}" data-page="gerenciar-vendas">
       <span class="icon"> <!-- shopping-bag -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2l1 4h10l1-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 6h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
@@ -97,3 +97,35 @@
   </div>
 
 </aside>
+
+<script>
+// Script para ativar o item do menu baseado na URL atual
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    // Remover active de todos os itens
+    menuItems.forEach(item => item.classList.remove('active'));
+    
+    // Verificar qual item deve estar ativo baseado na URL
+    if (currentPath.includes('/dashboard/')) {
+        document.querySelector('[data-page="dashboard"]')?.classList.add('active');
+    } else if (currentPath.includes('/vendas/gerenciar')) {
+        document.querySelector('[data-page="gerenciar-vendas"]')?.classList.add('active');
+    } else if (currentPath.includes('/vendas/')) {
+        document.querySelector('[data-page="vendas"]')?.classList.add('active');
+    } else if (currentPath.includes('/produtos/')) {
+        document.querySelector('[data-page="produtos"]')?.classList.add('active');
+    } else if (currentPath.includes('/estoque/')) {
+        document.querySelector('[data-page="estoque"]')?.classList.add('active');
+    } else if (currentPath.includes('/clientes/')) {
+        document.querySelector('[data-page="clientes"]')?.classList.add('active');
+    } else if (currentPath.includes('/funcionarios/')) {
+        document.querySelector('[data-page="funcionarios"]')?.classList.add('active');
+    } else if (currentPath.includes('/fornecedores/')) {
+        document.querySelector('[data-page="fornecedores"]')?.classList.add('active');
+    } else if (currentPath.includes('/relatorios/')) {
+        document.querySelector('[data-page="relatorios"]')?.classList.add('active');
+    }
+});
+</script>

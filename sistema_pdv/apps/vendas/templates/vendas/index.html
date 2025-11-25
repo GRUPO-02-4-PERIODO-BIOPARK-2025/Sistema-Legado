@@ -49,6 +49,33 @@
 		<div class="resumo-section">
 			<h2 class="section-title">Resumo do Pedido</h2>
 			
+			<!-- DEBUG: CAMPO CLIENTE ATIVO -->
+			<div style="background: #ff0000; color: white; padding: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; font-size: 18px; border-radius: 8px;">
+				🔴 SE VER ISSO = TEMPLATE ATUALIZADO!
+			</div>
+			
+			<!-- Seleção de Cliente -->
+			<div class="cliente-card" style="background: #f0e6ff !important; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(123, 47, 247, 0.3); border: 3px solid #7b2ff7 !important;">
+				<label for="cliente-select" style="display: block; margin-bottom: 12px; font-size: 18px; font-weight: 700; color: #7b2ff7;">
+					👤 SELECIONE O CLIENTE (OPCIONAL)
+				</label>
+				<select id="cliente-select" class="cliente-select" style="width: 100%; padding: 16px; border: 3px solid #7b2ff7 !important; border-radius: 8px; background: #fff !important; color: #000 !important; font-size: 16px; font-weight: 600; cursor: pointer;">
+					<option value="">➡️ Sem cliente (Venda Anônima)</option>
+					{% for cliente in clientes %}
+						<option value="{{ cliente.id }}" {% if venda.cliente and venda.cliente.id == cliente.id %}selected{% endif %}>
+							👤 {{ cliente.nome }} - {{ cliente.numero_documento }}
+						</option>
+					{% endfor %}
+				</select>
+				<p id="cliente-info" style="margin-top: 12px; font-size: 14px; color: #7b2ff7; font-weight: 600;">
+					{% if venda.cliente %}
+						✅ Cliente: {{ venda.cliente.nome }}
+					{% else %}
+						ℹ️ Nenhum cliente selecionado
+					{% endif %}
+				</p>
+			</div>
+			
 			<div class="resumo-card">
 				<div class="resumo-linha">
 					<span>Subtotal:</span>
@@ -240,6 +267,6 @@ document.addEventListener('click', function(e) {
 console.log('✅ Script inline configurado!');
 </script>
 
-<script src="{% static 'vendas/pdv.js' %}?v=20251124143000"></script>
+<script src="{% static 'vendas/pdv.js' %}?v=20251125000001"></script>
 
 {% endblock %}
