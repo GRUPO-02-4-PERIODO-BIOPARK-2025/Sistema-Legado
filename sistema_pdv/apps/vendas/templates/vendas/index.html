@@ -49,6 +49,24 @@
 		<div class="resumo-section">
 			<h2 class="section-title">Resumo do Pedido</h2>
 			
+			<!-- Cliente Section -->
+			<div class="cliente-card" style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+				<h3 style="font-size: 14px; font-weight: 600; color: #1d1d1f; margin-bottom: 12px;">👤 Cliente</h3>
+				<select id="cliente-select" class="cliente-select" style="width: 100%; padding: 12px; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+					<option value="">Venda Anônima</option>
+					{% for cliente in clientes %}
+					<option value="{{ cliente.id }}" {% if venda.cliente and venda.cliente.id == cliente.id %}selected{% endif %}>{{ cliente.nome }}</option>
+					{% endfor %}
+				</select>
+				<p id="cliente-info" style="margin-top: 8px; font-size: 12px; color: #86868b;">
+					{% if venda.cliente %}
+						Cliente: {{ venda.cliente.nome }}
+					{% else %}
+						Nenhum cliente selecionado
+					{% endif %}
+				</p>
+			</div>
+			
 			<div class="resumo-card">
 				<div class="resumo-linha">
 					<span>Subtotal:</span>

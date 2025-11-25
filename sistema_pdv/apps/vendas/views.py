@@ -1,15 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 
 from apps.produtos.models import Produto
+from apps.clientes.models import Cliente
 from .models import Venda, ItemVenda, Pagamento
 from .services import processar_venda, cancelar_venda
 
 
+@login_required(login_url='usuarios:login')
 def index(request):
     # Buscar ou criar venda em aberto para o usuário
     venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
@@ -19,11 +22,13 @@ def index(request):
     
     itens = venda.itemvenda_set.select_related('produto').all()
     produtos = Produto.objects.filter(estoque__gt=0).order_by('nome')
+    clientes = Cliente.objects.all().order_by('nome')
     
     context = {
         'venda': venda,
         'itens': itens,
         'produtos': produtos,
+        'clientes': clientes,
     }
     return render(request, 'vendas/index.html', context)
 
@@ -184,6 +189,33 @@ def aplicar_frete(request):
         return JsonResponse({
             'success': True,
             'total': float(venda.total),
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
+def associar_cliente(request):
+    try:
+        cliente_id = request.POST.get('cliente_id')
+        venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
+        
+        if not venda:
+            return JsonResponse({'success': False, 'message': 'Nenhuma venda em aberto'})
+        
+        if cliente_id and cliente_id != '':
+            cliente = get_object_or_404(Cliente, pk=cliente_id)
+            venda.cliente = cliente
+            cliente_nome = cliente.nome
+        else:
+            venda.cliente = None
+            cliente_nome = 'Cliente não informado'
+        
+        venda.save()
+        
+        return JsonResponse({
+            'success': True,
+            'cliente_nome': cliente_nome,
         })
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
