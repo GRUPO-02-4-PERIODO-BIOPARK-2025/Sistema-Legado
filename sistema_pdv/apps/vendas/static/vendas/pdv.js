@@ -543,44 +543,6 @@ function inicializarPDV() {
         }
     });
     
-    // Cliente selection
-    const clienteSelect = document.getElementById('cliente-select');
-    const clienteInfo = document.getElementById('cliente-info');
-    
-    if (clienteSelect) {
-        clienteSelect.addEventListener('change', async function() {
-            const clienteId = this.value;
-            
-            try {
-                const response = await fetch('/vendas/associar-cliente/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: `cliente_id=${clienteId}`
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (clienteInfo) {
-                        if (clienteId) {
-                            clienteInfo.textContent = `Cliente: ${data.cliente_nome}`;
-                        } else {
-                            clienteInfo.textContent = 'Nenhum cliente selecionado';
-                        }
-                    }
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.error('Erro ao associar cliente:', error);
-                alert('Erro ao associar cliente');
-            }
-        });
-    }
-    
     // Helper para pegar CSRF token
     function getCookie(name) {
         let cookieValue = null;
