@@ -232,5 +232,95 @@
       </p>
     </div>
   </div>
+  
+  <!-- Gráfico de Vendas Mensais -->
+  <div style="margin-top: 30px; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin: 0 0 20px 0;">Vendas Mensais</h2>
+    <canvas id="vendasChart" style="max-height: 300px;"></canvas>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('vendasChart').getContext('2d');
+  const mesesLabels = {{ meses_labels|safe }};
+  const vendasData = {{ vendas_mensais_data|safe }};
+  
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: mesesLabels,
+      datasets: [{
+        label: 'Vendas Mensais',
+        data: vendasData,
+        borderColor: '#7b2ff7',
+        backgroundColor: 'rgba(123, 47, 247, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#7b2ff7',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              return 'R$ ' + context.parsed.y.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#86868b',
+            font: {
+              size: 12
+            },
+            callback: function(value) {
+              return 'R$ ' + value.toFixed(0);
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            color: '#86868b',
+            font: {
+              size: 12
+            }
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    }
+  });
+</script>
 {% endblock %}

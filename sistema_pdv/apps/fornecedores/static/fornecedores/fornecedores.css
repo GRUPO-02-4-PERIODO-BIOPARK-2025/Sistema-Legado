@@ -1,7 +1,8 @@
 /* Styles specific to fornecedores page — use global CSS variables from sidebar.css */
 
-.fornecedores-page{max-width:1100px;margin:0 auto}
-.header h1{margin:0 0 18px 0;color:var(--sidebar-bg)}
+.fornecedores-page{max-width:1100px;margin:0 auto;padding:20px}
+.header{margin-bottom:24px}
+.header h1{margin:0;font-size:32px;font-weight:700;color:#1d1d1f;letter-spacing:-0.5px}
 
 .form-panel{background:#fff;padding:18px;border-radius:8px;margin-bottom:18px;box-shadow:0 6px 18px rgba(16,16,16,0.06)}
 .form-panel label{display:block;font-size:13px;color:#333;margin-bottom:6px}
@@ -32,13 +33,20 @@
 .btn-secondary{background:#f3f2f7;color:#444;border:1px solid #efeaee;text-decoration: none;}
 .btn-delete{background:transparent;border:1px solid #e8bfc3;color:#b03b3b;padding:10px 18px;border-radius:8px}
 
-.list-panel{background:#fff;padding:14px;border-radius:8px}
+.list-panel{background:#fff;padding:24px;border-radius:8px;box-shadow:0 6px 18px rgba(16,16,16,0.06)}
+.list-panel h2{font-size:18px;font-weight:600;color:#1d1d1f;margin:0 0 20px 0}
 .fornecedores-table{width:100%;border-collapse:collapse}
-.fornecedores-table th,.fornecedores-table td{padding:10px 8px;border-bottom:1px solid #f0edf5;text-align:left}
+.fornecedores-table thead{background:#f8f7fa}
+.fornecedores-table th{padding:14px 12px;border-bottom:2px solid #e6e4ef;text-align:left;font-size:13px;font-weight:600;color:#1d1d1f;text-transform:uppercase;letter-spacing:0.5px}
+.fornecedores-table td{padding:16px 12px;border-bottom:1px solid #f0edf5;text-align:left;font-size:14px;color:#1d1d1f}
+.fornecedores-table tbody tr{transition:background-color 0.2s ease}
+.fornecedores-table tbody tr:hover{background-color:#f8f7fa}
 .actions-col{display:flex;gap:8px;align-items:center}
-.action{padding:6px 10px;border-radius:6px;text-decoration:none;font-size:13px}
-.action.edit{background:#6f2bd6;color:#fff}
-.action.delete{background:transparent;border:1px solid #e8bfc3;color:#b03b3b;padding:6px 10px}
+.action{padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;transition:all 0.2s ease;cursor:pointer}
+.action.edit{background:#7b2ff7;color:#fff;border:none}
+.action.edit:hover{background:#6a28d9;transform:translateY(-1px);box-shadow:0 2px 8px rgba(123, 47, 247, 0.3)}
+.action.delete{background:transparent;border:1px solid #e8bfc3;color:#b03b3b;padding:7px 14px}
+.action.delete:hover{background:#fef2f2;border-color:#b03b3b}
 .inline-form{display:inline;margin:0}
 
 @media (max-width:900px){.row{flex-direction:column}}
