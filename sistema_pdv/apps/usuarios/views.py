@@ -9,14 +9,8 @@ import string
 
 def login_view(request):
     if request.user.is_authenticated:
-        # Redireciona funcionário para PDV, administrador para dashboard
-        try:
-            if request.user.perfil.permissao == 'funcionario':
-                return redirect('vendas:index')
-            else:
-                return redirect('dashboard:index')
-        except:
-            return redirect('dashboard:index')
+        # Redireciona todos os usuários para PDV
+        return redirect('vendas:index')
     
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -32,14 +26,8 @@ def login_view(request):
                     nome = user.first_name if user.first_name else user.username
                     messages.success(request, f'Bem-vindo, {nome}!')
                     
-                    # Redireciona funcionário para PDV, administrador para dashboard
-                    try:
-                        if user.perfil.permissao == 'funcionario':
-                            return redirect('vendas:index')
-                        else:
-                            return redirect('dashboard:index')
-                    except:
-                        return redirect('dashboard:index')
+                    # Redireciona todos os usuários para PDV
+                    return redirect('vendas:index')
                 else:
                     messages.error(request, 'Sua conta está desativada. Entre em contato com o administrador.')
             else:
@@ -53,14 +41,8 @@ def login_view(request):
 
 def cadastro_view(request):
     if request.user.is_authenticated:
-        # Redireciona funcionário para PDV, administrador para dashboard
-        try:
-            if request.user.perfil.permissao == 'funcionario':
-                return redirect('vendas:index')
-            else:
-                return redirect('dashboard:index')
-        except:
-            return redirect('dashboard:index')
+        # Redireciona todos os usuários para PDV
+        return redirect('vendas:index')
     
     if request.method == 'POST':
         form = CadastroForm(request.POST)
