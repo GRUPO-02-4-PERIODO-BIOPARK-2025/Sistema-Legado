@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'vendas/gerenciar_vendas.css' %}">
+
+<section class="vendas-gerenciar-page">
+	<div class="header">
+		<h1>Gerenciar Vendas</h1>
+	</div>
+
+	<!-- Filtros -->
+	<div class="filter-panel">
+		<form method="get" action="{% url 'vendas:gerenciar' %}" class="filter-form">
+			<div class="filter-row">
+				<div class="filter-col">
+					<label for="data_inicio">Data Início</label>
+					<input type="date" id="data_inicio" name="data_inicio" value="{{ data_inicio }}">
+				</div>
+
+				<div class="filter-col">
+					<label for="data_fim">Data Fim</label>
+					<input type="date" id="data_fim" name="data_fim" value="{{ data_fim }}">
+				</div>
+
+				<div class="filter-col">
+					<label for="cliente">Cliente/Código</label>
+					<input type="text" id="cliente" name="cliente" placeholder="Nome do cliente ou código" value="{{ cliente }}">
+				</div>
+
+				<div class="filter-col">
+					<label for="status">Status</label>
+					<select id="status" name="status">
+						<option value="">Selecione...</option>
+						<option value="finalizada" {% if status == 'finalizada' %}selected{% endif %}>Finalizada</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="filter-actions">
+				<button type="submit" class="btn btn-filter">Adicionar Filtro</button>
+				<a href="{% url 'vendas:gerenciar' %}" class="btn btn-clear">Limpar</a>
+			</div>
+		</form>
+	</div>
+
+	<!-- Lista de Vendas -->
+	<div class="list-panel">
+		<h2>Vendas Realizadas</h2>
+
+		<table class="vendas-table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Data</th>
+					<th>Cliente</th>
+					<th>Total</th>
+					<th>Forma de Pagamento</th>
+					<th>Status</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for venda in vendas %}
+				<tr>
+					<td>{{ venda.id }}</td>
+					<td>{{ venda.data|date:"d/m/Y H:i" }}</td>
+					<td>{{ venda.cliente.nome|default:"Cliente não informado" }}</td>
+					<td>R$ {{ venda.total|floatformat:2 }}</td>
+					<td>
+						{% if venda.pagamentos.all %}
+							{% for pagamento in venda.pagamentos.all %}
+								{{ pagamento.get_tipo_display }}{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						{% else %}
+							-
+						{% endif %}
+					</td>
+					<td><span class="status-badge status-finalizada">Finalizada</span></td>
+					<td class="actions-col">
+						<button class="action details" onclick="verDetalhes({{ venda.id }})">Detalhes</button>
+						<button class="action cancel" onclick="cancelarVenda({{ venda.id }})">Cancelar</button>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="7">Nenhuma venda encontrada.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Modal de Detalhes -->
+	<div id="detalhesModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>Detalhes da Venda</h2>
+				<span class="close" onclick="fecharModal()">&times;</span>
+			</div>
+			<div class="modal-body" id="detalhesContent">
+				<!-- Conteúdo será preenchido via JavaScript -->
+			</div>
+		</div>
+	</div>
+</section>
+
+<script src="{% static 'vendas/gerenciar_vendas.js' %}"></script>
+
+{% endblock %}

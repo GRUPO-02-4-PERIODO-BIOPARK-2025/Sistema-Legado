@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 
 from apps.produtos.models import Produto
 from .models import Venda, ItemVenda, Pagamento
@@ -142,17 +143,42 @@ def atualizar_quantidade(request, item_id):
 
 @require_POST
 def aplicar_desconto(request):
+    from decimal import Decimal
     try:
-        desconto = float(request.POST.get('desconto', 0))
+        desconto = Decimal(str(request.POST.get('desconto', 0)))
         venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
         
         if not venda:
             return JsonResponse({'success': False, 'message': 'Nenhuma venda em aberto'})
         
-        if desconto < 0 or desconto > float(venda.subtotal):
+        if desconto < 0 or desconto > venda.subtotal:
             return JsonResponse({'success': False, 'message': 'Desconto inválido'})
         
         venda.desconto = desconto
+        venda.calcular_total()
+        
+        return JsonResponse({
+            'success': True,
+            'total': float(venda.total),
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
+def aplicar_frete(request):
+    from decimal import Decimal
+    try:
+        frete = Decimal(str(request.POST.get('frete', 0)))
+        venda = Venda.objects.filter(finalizada=False, usuario=request.user).first()
+        
+        if not venda:
+            return JsonResponse({'success': False, 'message': 'Nenhuma venda em aberto'})
+        
+        if frete < 0:
+            return JsonResponse({'success': False, 'message': 'Frete inválido'})
+        
+        venda.frete = frete
         venda.calcular_total()
         
         return JsonResponse({
@@ -221,5 +247,92 @@ def cancelar(request):
         if venda:
             cancelar_venda(venda)
         return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+def gerenciar_vendas(request):
+    """View para gerenciar vendas finalizadas"""
+    vendas = Venda.objects.filter(finalizada=True).select_related('cliente', 'usuario').order_by('-data')
+    
+    # Filtros
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    cliente = request.GET.get('cliente')
+    status = request.GET.get('status')
+    
+    if data_inicio:
+        vendas = vendas.filter(data__date__gte=data_inicio)
+    if data_fim:
+        vendas = vendas.filter(data__date__lte=data_fim)
+    if cliente:
+        vendas = vendas.filter(Q(cliente__nome__icontains=cliente) | Q(codigo_barras__icontains=cliente))
+    
+    context = {
+        'vendas': vendas,
+        'data_inicio': data_inicio or '',
+        'data_fim': data_fim or '',
+        'cliente': cliente or '',
+        'status': status or '',
+    }
+    return render(request, 'vendas/gerenciar.html', context)
+
+
+def detalhes_venda(request, venda_id):
+    """Retorna os detalhes de uma venda em JSON"""
+    try:
+        venda = get_object_or_404(Venda, pk=venda_id, finalizada=True)
+        itens = venda.itemvenda_set.select_related('produto').all()
+        pagamentos = venda.pagamentos.all()
+        
+        itens_data = [{
+            'produto': item.produto.nome,
+            'quantidade': item.quantidade,
+            'preco_unitario': float(item.preco_unitario),
+            'subtotal': float(item.subtotal),
+        } for item in itens]
+        
+        pagamentos_data = [{
+            'tipo': p.get_tipo_display(),
+            'valor': float(p.valor),
+            'parcelas': p.parcelas if hasattr(p, 'parcelas') else 1,
+        } for p in pagamentos]
+        
+        return JsonResponse({
+            'success': True,
+            'venda': {
+                'id': venda.id,
+                'codigo_barras': venda.codigo_barras,
+                'data': venda.data.strftime('%d/%m/%Y %H:%M'),
+                'cliente': venda.cliente.nome if venda.cliente else 'Cliente não informado',
+                'usuario': venda.usuario.username if venda.usuario else 'N/A',
+                'subtotal': float(venda.subtotal),
+                'desconto': float(venda.desconto),
+                'total': float(venda.total),
+                'itens': itens_data,
+                'pagamentos': pagamentos_data,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
+def cancelar_venda_finalizada(request, venda_id):
+    """Cancela uma venda já finalizada"""
+    try:
+        venda = get_object_or_404(Venda, pk=venda_id, finalizada=True)
+        
+        with transaction.atomic():
+            # Devolver itens ao estoque
+            for item in venda.itemvenda_set.all():
+                item.produto.estoque += item.quantidade
+                item.produto.save()
+            
+            # Marcar venda como cancelada (podemos adicionar um campo status depois)
+            # Por enquanto, apenas deletamos
+            venda.delete()
+        
+        return JsonResponse({'success': True, 'message': 'Venda cancelada com sucesso'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})

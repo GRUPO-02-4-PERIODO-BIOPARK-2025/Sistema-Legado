@@ -34,6 +34,7 @@ function inicializarPDV() {
     const btnFinalizar = document.getElementById('btn-finalizar');
     const modalClose = document.querySelector('.modal-close');
     const descontoInput = document.getElementById('desconto-input');
+    const freteInput = document.getElementById('frete-input');
     const valorRecebidoInput = document.getElementById('valor-recebido');
     const trocoInput = document.getElementById('troco');
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -156,31 +157,62 @@ function inicializarPDV() {
     });
     
     // Aplicar desconto
-    descontoInput.addEventListener('change', async function() {
-        const desconto = parseFloat(this.value) || 0;
-        
-        try {
-            const response = await fetch('/vendas/aplicar-desconto/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: `desconto=${desconto}`
-            });
+    if (descontoInput) {
+        descontoInput.addEventListener('change', async function() {
+            const desconto = parseFloat(this.value) || 0;
             
-            const data = await response.json();
-            
-            if (data.success) {
-                document.getElementById('total').textContent = data.total.toFixed(2);
-                calcularTroco();
-            } else {
-                alert(data.message);
+            try {
+                const response = await fetch('/vendas/aplicar-desconto/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `desconto=${desconto}`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('total').textContent = data.total.toFixed(2);
+                    calcularTroco();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Erro ao aplicar desconto');
             }
-        } catch (error) {
-            alert('Erro ao aplicar desconto');
-        }
-    });
+        });
+    }
+    
+    // Aplicar frete
+    if (freteInput) {
+        freteInput.addEventListener('change', async function() {
+            const frete = parseFloat(this.value) || 0;
+            
+            try {
+                const response = await fetch('/vendas/aplicar-frete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `frete=${frete}`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('total').textContent = data.total.toFixed(2);
+                    calcularTroco();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Erro ao aplicar frete');
+            }
+        });
+    }
     
     // CRIAR elementos de cartão dinamicamente se não existirem
     function criarOpcoesCartao() {
