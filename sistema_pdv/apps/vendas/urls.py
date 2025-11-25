@@ -13,7 +13,9 @@ urlpatterns = [
     path('associar-cliente/', views.associar_cliente, name='associar_cliente'),
     path('finalizar/', views.finalizar_venda, name='finalizar'),
     path('cancelar/', views.cancelar, name='cancelar'),
+    path('atualizar-cliente/', views.atualizar_cliente, name='atualizar_cliente'),
     path('gerenciar/', views.gerenciar_vendas, name='gerenciar'),
     path('detalhes/<int:venda_id>/', views.detalhes_venda, name='detalhes'),
     path('cancelar-venda/<int:venda_id>/', views.cancelar_venda_finalizada, name='cancelar_venda'),
+    path('baixar-parcela/<int:parcela_id>/', views.baixar_parcela, name='baixar_parcela'),
 ]
