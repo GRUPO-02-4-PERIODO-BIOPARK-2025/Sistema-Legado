@@ -8,6 +8,7 @@ class Venda(models.Model):
     data = models.DateTimeField(auto_now_add=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     desconto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    frete = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, null=True, blank=True)
     usuario = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
@@ -21,7 +22,7 @@ class Venda(models.Model):
 
     def calcular_total(self):
         self.subtotal = sum(item.subtotal for item in self.itemvenda_set.all())
-        self.total = self.subtotal - self.desconto
+        self.total = self.subtotal - self.desconto + self.frete
         self.save()
 
     def __str__(self):
@@ -52,6 +53,9 @@ class Pagamento(models.Model):
     venda = models.ForeignKey(Venda, on_delete=models.CASCADE, related_name='pagamentos')
     tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
+    parcelas = models.IntegerField(default=1, help_text="Número de parcelas (1 = à vista)")
 
     def __str__(self):
+        if self.parcelas > 1:
+            return f"{self.get_tipo_display()} - R$ {self.valor} ({self.parcelas}x)"
         return f"{self.get_tipo_display()} - R$ {self.valor}"

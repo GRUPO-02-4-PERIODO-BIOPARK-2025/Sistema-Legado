@@ -189,10 +189,15 @@
 .desconto-linha {
     padding: 12px 0;
     border-top: 1px solid #e5e5e7;
+}
+
+.frete-linha {
+    padding: 12px 0;
     border-bottom: 1px solid #e5e5e7;
 }
 
-.desconto-input {
+.desconto-input,
+.frete-input {
     width: 120px;
     padding: 6px 12px;
     border: 1px solid #d2d2d7;

@@ -60,6 +60,11 @@
 					<input type="number" id="desconto-input" value="{{ venda.desconto|floatformat:2 }}" step="0.01" min="0" class="desconto-input">
 				</div>
 				
+				<div class="resumo-linha frete-linha">
+					<label for="frete-input">Frete:</label>
+					<input type="number" id="frete-input" value="{{ venda.frete|floatformat:2 }}" step="0.01" min="0" class="frete-input">
+				</div>
+				
 				<div class="resumo-linha total-linha">
 					<span>Total:</span>
 					<span class="valor-total">R$ <span id="total">{{ venda.total|floatformat:2 }}</span></span>
@@ -181,9 +186,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 			console.log('Mostrando opções de cartão');
 			if (cartaoDiv) {
 				cartaoDiv.style.display = 'block';
-				alert('✅ Opções de cartão ativadas! Você deve ver uma caixa roxa abaixo.');
-			} else {
-				alert('❌ ERRO: Elemento cartao-opcoes não encontrado!');
 			}
 			if (trocoDiv) trocoDiv.style.display = 'none';
 		} else {
