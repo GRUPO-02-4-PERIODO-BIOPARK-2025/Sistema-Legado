@@ -170,32 +170,48 @@
 console.log('🚀 Script inline carregado!');
 
 // Adicionar evento aos botões de pagamento
-document.querySelectorAll('.tab-btn').forEach(btn => {
-	btn.addEventListener('click', function() {
-		const tipo = this.getAttribute('data-tipo');
-		console.log('Botão clicado:', tipo);
-		
-		// Remover active de todos
-		document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-		this.classList.add('active');
-		
-		const cartaoDiv = document.getElementById('cartao-opcoes');
-		const trocoDiv = document.getElementById('troco-group');
-		
-		if (tipo === 'cartao') {
-			console.log('Mostrando opções de cartão');
-			if (cartaoDiv) {
-				cartaoDiv.style.display = 'block';
+	document.querySelectorAll('.tab-btn').forEach(btn => {
+		btn.addEventListener('click', function() {
+			const tipo = this.getAttribute('data-tipo');
+			console.log('Botão clicado:', tipo);
+			
+			// Remover active de todos
+			document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+			this.classList.add('active');
+			
+			const cartaoDiv = document.getElementById('cartao-opcoes');
+			const trocoDiv = document.getElementById('troco-group');
+			const valorRecebidoInput = document.getElementById('valor-recebido');
+			const trocoInput = document.getElementById('troco');
+			
+			// Obter o valor total
+			const total = parseFloat(document.getElementById('total').textContent);
+			
+			// Preencher automaticamente para PIX e Cartão
+			if (tipo === 'pix' || tipo === 'cartao') {
+				if (valorRecebidoInput) valorRecebidoInput.value = total.toFixed(2);
+				if (trocoInput) trocoInput.value = '';
+			} else {
+				if (valorRecebidoInput) valorRecebidoInput.value = '';
+				if (trocoInput) trocoInput.value = '';
 			}
-			if (trocoDiv) trocoDiv.style.display = 'none';
-		} else {
-			if (cartaoDiv) cartaoDiv.style.display = 'none';
-			if (trocoDiv) trocoDiv.style.display = 'block';
-		}
-	});
-});
-
-// Botões de débito/crédito
+			
+			if (tipo === 'cartao') {
+				console.log('Mostrando opções de cartão');
+				if (cartaoDiv) {
+					cartaoDiv.style.display = 'block';
+				}
+				if (trocoDiv) trocoDiv.style.display = 'none';
+			} else if (tipo === 'pix') {
+				console.log('PIX selecionado - sem troco');
+				if (cartaoDiv) cartaoDiv.style.display = 'none';
+				if (trocoDiv) trocoDiv.style.display = 'none';
+			} else {
+				if (cartaoDiv) cartaoDiv.style.display = 'none';
+				if (trocoDiv) trocoDiv.style.display = 'block';
+			}
+		});
+	});// Botões de débito/crédito
 document.addEventListener('click', function(e) {
 	if (e.target.classList.contains('cartao-tipo-btn')) {
 		const tipo = e.target.getAttribute('data-tipo');

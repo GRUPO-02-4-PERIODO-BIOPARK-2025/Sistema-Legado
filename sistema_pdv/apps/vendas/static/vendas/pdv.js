@@ -1,5 +1,5 @@
 // PDV JavaScript - Versão 3.0 com opções de cartão
-console.log('🚀 Script PDV carregado!');
+console.log(' Script PDV carregado!');
 
 // Aguardar DOM estar completamente pronto
 window.addEventListener('load', function() {
@@ -13,7 +13,7 @@ window.addEventListener('load', function() {
         console.log('Busca cartao-opcoes:', testeCartao);
         
         if (!testeCartao) {
-            console.error('❌ ERRO: Elemento cartao-opcoes NÃO ENCONTRADO!');
+            console.error(' ERRO: Elemento cartao-opcoes NÃO ENCONTRADO!');
             console.log('Procurando no body...', document.body ? 'Body existe' : 'Body não existe');
             const pagamentoCard = document.querySelector('.pagamento-card');
             console.log('pagamento-card encontrado?', pagamentoCard);
@@ -229,14 +229,14 @@ function inicializarPDV() {
                 
                 cartaoDiv.innerHTML = `
                     <div style="margin-bottom: 16px;">
-                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;">💳 Tipo de Cartão</label>
+                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;"> Tipo de Cartão</label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <button type="button" class="cartao-tipo-btn-dynamic" data-tipo="debito" style="padding: 14px; border: 2px solid #7b2ff7; border-radius: 8px; background: linear-gradient(90deg, #7b2ff7, #9b41ff); color: white; font-size: 15px; font-weight: bold; cursor: pointer;">Débito</button>
                             <button type="button" class="cartao-tipo-btn-dynamic" data-tipo="credito" style="padding: 14px; border: 2px solid #d2d2d7; border-radius: 8px; background: white; color: #1d1d1f; font-size: 15px; font-weight: bold; cursor: pointer;">Crédito</button>
                         </div>
                     </div>
                     <div id="parcelas-group-dynamic" style="display: none;">
-                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;">📊 Número de Parcelas</label>
+                        <label style="display: block; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #1d1d1f;"> Número de Parcelas</label>
                         <input type="number" id="parcelas-input-dynamic" min="1" max="12" value="1" style="width: 100%; padding: 14px; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 18px; font-weight: bold;">
                     </div>
                 `;
@@ -279,18 +279,36 @@ function inicializarPDV() {
             tabBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             tipoSelecionado = this.dataset.tipo;
-            valorRecebidoInput.value = '';
-            trocoInput.value = '';
+            
+            // Obter o valor total da venda
+            const total = parseFloat(document.getElementById('total').textContent);
+            
+            // Para PIX e Cartão, preencher automaticamente com o valor total
+            if (tipoSelecionado === 'pix' || tipoSelecionado === 'cartao') {
+                valorRecebidoInput.value = total.toFixed(2);
+                trocoInput.value = '';
+            } else {
+                valorRecebidoInput.value = '';
+                trocoInput.value = '';
+            }
             
             // Criar ou buscar opções de cartão
             let cartaoDiv = criarOpcoesCartao();
             const trocoDiv = document.getElementById('troco-group');
             
             if (tipoSelecionado === 'cartao') {
-                console.log('🎯 Cartão selecionado!');
+                console.log(' Cartão selecionado!');
                 if (cartaoDiv) {
                     cartaoDiv.style.display = 'block';
-                    console.log('✅ Mostrando opções de cartão');
+                    console.log(' Mostrando opções de cartão');
+                }
+                if (trocoDiv) {
+                    trocoDiv.style.display = 'none';
+                }
+            } else if (tipoSelecionado === 'pix') {
+                console.log(' PIX selecionado!');
+                if (cartaoDiv) {
+                    cartaoDiv.style.display = 'none';
                 }
                 if (trocoDiv) {
                     trocoDiv.style.display = 'none';
@@ -356,8 +374,8 @@ function inicializarPDV() {
         const valorRecebido = parseFloat(valorRecebidoInput.value) || 0;
         const total = parseFloat(document.getElementById('total').textContent);
         
-        // Não calcular troco para cartão
-        if (tipoSelecionado === 'cartao') {
+        // Não calcular troco para cartão e PIX
+        if (tipoSelecionado === 'cartao' || tipoSelecionado === 'pix') {
             trocoInput.value = '';
         } else {
             const troco = valorRecebido - total;
