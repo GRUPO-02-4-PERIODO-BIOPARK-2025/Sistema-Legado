@@ -13,13 +13,13 @@ def index(request):
     hoje = timezone.now().date()
     inicio_mes = hoje.replace(day=1)
     
-    # Vendas de hoje
+    # Vendas de hoje - calcular valor recebido
     vendas_hoje = Venda.objects.filter(finalizada=True, data__date=hoje)
-    total_vendas_hoje = vendas_hoje.aggregate(total=Sum('total'))['total'] or 0
+    total_vendas_hoje = sum(venda.get_valor_recebido() for venda in vendas_hoje)
     
-    # Vendas do mês
+    # Vendas do mês - calcular valor recebido
     vendas_mes = Venda.objects.filter(finalizada=True, data__date__gte=inicio_mes)
-    total_vendas_mes = vendas_mes.aggregate(total=Sum('total'))['total'] or 0
+    total_vendas_mes = sum(venda.get_valor_recebido() for venda in vendas_mes)
     
     # Produtos em estoque
     produtos_em_estoque = Produto.objects.filter(estoque__gt=0).count()
@@ -50,7 +50,8 @@ def index(request):
             data__date__gte=mes_ref,
             data__date__lte=fim_mes
         )
-        total_mes = vendas_do_mes.aggregate(total=Sum('total'))['total'] or 0
+        # Calcular total recebido (apenas parcelas pagas)
+        total_mes = sum(venda.get_valor_recebido() for venda in vendas_do_mes)
         
         # Nomes dos meses em português
         meses_nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 

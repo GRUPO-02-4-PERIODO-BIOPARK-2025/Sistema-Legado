@@ -55,6 +55,36 @@ function inicializarPDV() {
         cartaoTipoBtns: cartaoTipoBtns.length
     });
     
+    // Atualizar cliente na venda
+    const clienteSelect = document.getElementById('cliente-select');
+    if (clienteSelect) {
+        clienteSelect.addEventListener('change', async function() {
+            const clienteId = this.value || null;
+            
+            try {
+                const response = await fetch('/vendas/atualizar-cliente/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `cliente_id=${clienteId}`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Cliente atualizado:', data.cliente_nome || 'Sem cliente');
+                } else {
+                    alert(data.message || 'Erro ao atualizar cliente');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar cliente:', error);
+                alert('Erro ao atualizar cliente');
+            }
+        });
+    }
+    
     // Abrir modal
     btnAdicionar.addEventListener('click', () => {
         modal.classList.add('show');

@@ -24,6 +24,54 @@ class Venda(models.Model):
         self.subtotal = sum(item.subtotal for item in self.itemvenda_set.all())
         self.total = self.subtotal - self.desconto + self.frete
         self.save()
+    
+    def get_status_pagamento(self):
+        """Retorna o status do pagamento baseado nas parcelas"""
+        if not self.finalizada:
+            return {'status': 'aberta', 'display': 'Em Aberto'}
+        
+        # Buscar todas as parcelas da venda
+        total_parcelas = 0
+        parcelas_pagas = 0
+        
+        for pagamento in self.pagamentos.all():
+            parcelas = pagamento.parcelas_detalhes.all()
+            total_parcelas += parcelas.count()
+            parcelas_pagas += parcelas.filter(status='pago').count()
+        
+        # Se não tem parcelas registradas, considera como pago (vendas antigas)
+        if total_parcelas == 0:
+            return {'status': 'pago', 'display': 'Pago'}
+        
+        # Se todas as parcelas estão pagas
+        if parcelas_pagas == total_parcelas:
+            return {'status': 'pago', 'display': 'Pago'}
+        
+        # Se algumas parcelas estão pagas
+        if parcelas_pagas > 0:
+            return {'status': 'parcial', 'display': f'Parcial ({parcelas_pagas}/{total_parcelas})'}
+        
+        # Se nenhuma parcela foi paga
+        return {'status': 'pendente', 'display': 'Pendente'}
+    
+    def get_valor_recebido(self):
+        """Retorna o valor efetivamente recebido (apenas parcelas pagas)"""
+        from decimal import Decimal
+        total_recebido = Decimal('0.00')
+        
+        for pagamento in self.pagamentos.all():
+            parcelas = pagamento.parcelas_detalhes.all()
+            
+            # Se não tem parcelas registradas, considera tudo pago (vendas antigas)
+            if not parcelas.exists():
+                total_recebido += pagamento.valor
+            else:
+                # Soma apenas as parcelas que foram pagas
+                parcelas_pagas = parcelas.filter(status='pago')
+                for parcela in parcelas_pagas:
+                    total_recebido += parcela.valor
+        
+        return total_recebido
 
     def __str__(self):
         return f"Venda #{self.codigo_barras}"
@@ -59,3 +107,25 @@ class Pagamento(models.Model):
         if self.parcelas > 1:
             return f"{self.get_tipo_display()} - R$ {self.valor} ({self.parcelas}x)"
         return f"{self.get_tipo_display()} - R$ {self.valor}"
+
+
+class Parcela(models.Model):
+    STATUS_CHOICES = [
+        ('pendente', 'Pendente'),
+        ('pago', 'Pago'),
+    ]
+    
+    pagamento = models.ForeignKey(Pagamento, on_delete=models.CASCADE, related_name='parcelas_detalhes')
+    numero = models.IntegerField(help_text="Número da parcela")
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente')
+    data_vencimento = models.DateField(null=True, blank=True)
+    data_pagamento = models.DateTimeField(null=True, blank=True)
+    usuario_baixa = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['numero']
+        unique_together = ['pagamento', 'numero']
+    
+    def __str__(self):
+        return f"Parcela {self.numero}/{self.pagamento.parcelas} - R$ {self.valor} ({self.status})"

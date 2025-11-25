@@ -59,7 +59,11 @@ class GerarRelatorioView(LoginRequiredMixin, View):
             vendas = vendas.filter(pagamentos__tipo=forma_pagamento).distinct()
 
         total_vendas = vendas.count()
-        total_faturamento = vendas.aggregate(Sum('total'))['total__sum'] or 0
+        
+        # Calcular faturamento baseado no valor efetivamente recebido
+        total_faturamento = 0
+        for venda in vendas:
+            total_faturamento += float(venda.get_valor_recebido())
         
         vendas_detalhes = vendas.order_by('-data').select_related('usuario', 'cliente').prefetch_related('pagamentos')
 
@@ -113,7 +117,8 @@ class GerarGraficoView(LoginRequiredMixin, View):
         for venda in vendas:
             # Obter o dia da semana (0 = segunda, 6 = domingo)
             dia_semana = venda.data.weekday()
-            vendas_por_dia_semana[dia_semana] += float(venda.total)
+            # Usar valor recebido ao invés do total
+            vendas_por_dia_semana[dia_semana] += float(venda.get_valor_recebido())
         
         # SEMPRE usar todos os dias da semana
         dias = dias_semana_labels
